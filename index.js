@@ -114,6 +114,10 @@ client.on('interactionCreate', async (interaction) => {
                 {
                     id: process.env.SUPPORTROLE,
                     allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
+                },
+                {
+                    id: client.user.id,
+                    allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
                 }
             ]
         });
@@ -130,7 +134,7 @@ client.on('interactionCreate', async (interaction) => {
 
         const embed = new EmbedBuilder()
             .setTitle('Ticket Created')
-            .setDescription('A member of support team will be with you soon.')
+            .setDescription('A member of the support team will be with you soon.')
             .setColor(0x00ff00);
 
         const closeButton = {
@@ -145,8 +149,13 @@ client.on('interactionCreate', async (interaction) => {
             ]
         };
 
-        await channel.send({ embeds: [embed], components: [closeButton] });
-        interaction.reply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
+        try{
+            await channel.send({ embeds: [embed], components: [closeButton] });
+            interaction.reply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
+        }
+        catch (DiscordAPIError) {
+            logger.error('An error occured, probably couldn\'t access the ticket category.')
+        }
     }
 
     if (interaction.customId === 'close_ticket') {
