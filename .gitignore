@@ -1,3 +1,6 @@
+# Default data file
+tickets.json
+
 # Logs
 logs
 *.log
