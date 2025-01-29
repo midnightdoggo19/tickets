@@ -1,6 +1,7 @@
 const { Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField } = require('discord.js');
 require('dotenv').config();
 const winston = require('winston');
+const fs = require('fs');
 
 const client = new Client({
     intents: [
@@ -23,6 +24,19 @@ const logger = winston.createLogger({
     ]
 });
 
+let tickets = {};
+if (fs.existsSync(process.env.DATAFILE)) {
+    try {
+        tickets = JSON.parse(fs.readFileSync(process.env.DATAFILE));
+    } catch (error) {
+        logger.error('Failed to load ticket data:', error);
+    }
+}
+
+const saveTickets = () => {
+    fs.writeFileSync(process.env.DATAFILE, JSON.stringify(tickets, null, 2));
+};
+
 client.once('ready', () => {
     logger.info(`Logged in as ${client.user.tag}`);
 });
@@ -38,8 +52,11 @@ client.on('interactionCreate', async (interaction) => {
             return interaction.reply({ content: 'Ticket category is not set!', flags: 64 });
         }
 
+        const userTickets = Object.values(tickets).filter(t => t.user === user.id);
+        const ticketNumber = userTickets.length;
+
         const channel = await guild.channels.create({
-            name: `ticket-${user.username}`,
+            name: `ticket-${user.username}-${ticketNumber}`,
             type: 0, // 0 = text channel
             parent: process.env.TICKETCATEGORY,
             permissionOverwrites: [
@@ -58,7 +75,15 @@ client.on('interactionCreate', async (interaction) => {
             ]
         });
 
-        logger.info(`Ticket created by ${user.tag} in channel #${channel.name} (${channel.id})`);
+        tickets[channel.id] = {
+            user: user.id,
+            channel: channel.id,
+            status: 'open',
+            ticketNumber: ticketNumber
+        };
+        saveTickets();
+
+        logger.info(`Ticket #${ticketNumber} created by ${user.tag} in channel #${channel.name} (${channel.id})`);
 
         const embed = new EmbedBuilder()
             .setTitle('Ticket Created')
@@ -85,7 +110,7 @@ client.on('interactionCreate', async (interaction) => {
         const channel = interaction.channel;
 
         if (!process.env.ARCHIVECATEGORY) {
-            logger.warn('Archive category is not set in .env!')
+            logger.warn('Archive category is not set in .env!');
             return interaction.reply({ content: 'Archive category is not set!', flags: 64 });
         }
 
@@ -100,6 +125,11 @@ client.on('interactionCreate', async (interaction) => {
                 allow: [PermissionsBitField.Flags.ViewChannel]
             }
         ]);
+
+        if (tickets[channel.id]) {
+            tickets[channel.id].status = 'archived';
+            saveTickets();
+        }
 
         logger.info(`Ticket closed and archived: #${channel.name} (${channel.id})`);
         interaction.reply({ content: 'Ticket has been archived.', flags: 64 });
@@ -131,6 +161,8 @@ client.on('messageCreate', async (message) => {
         };
 
         await message.channel.send({ embeds: [embed], components: [button] });
+
+        await message.delete()
     }
 });
 
