@@ -12,6 +12,8 @@ const client = new Client({
     ]
 });
 
+const channelFile = process.env.DATAFILE || "channels.json"
+
 const logger = winston.createLogger({
     level: process.env.LOGLEVEL || 'info',
     format: winston.format.combine(
@@ -25,16 +27,16 @@ const logger = winston.createLogger({
 });
 
 let tickets = {};
-if (fs.existsSync(process.env.DATAFILE)) {
+if (fs.existsSync(channelFile)) {
     try {
-        tickets = JSON.parse(fs.readFileSync(process.env.DATAFILE));
+        tickets = JSON.parse(fs.readFileSync(channelFile));
     } catch (error) {
         logger.error('Failed to load ticket data:', error);
     }
 }
 
 const saveTickets = () => {
-    fs.writeFileSync(process.env.DATAFILE, JSON.stringify(tickets, null, 2));
+    fs.writeFileSync(channelFile, JSON.stringify(tickets, null, 2));
 };
 
 client.once('ready', () => {
