@@ -14,12 +14,12 @@ const client = new Client({
 const logger = winston.createLogger({
     level: process.env.LOGLEVEL || 'info',
     format: winston.format.combine(
-          winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-          winston.format.printf(info => `[${info.timestamp}] ${info.level.toUpperCase()}: ${info.message}`)
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        winston.format.printf(info => `[${info.timestamp}] ${info.level.toUpperCase()}: ${info.message}`)
     ),
     transports: [
-          new winston.transports.Console(),
-          new winston.transports.File({ filename: process.env.LOGFILE || 'logger.log' }),
+        new winston.transports.Console(),
+        new winston.transports.File({ filename: process.env.LOGFILE || 'logger.log' }),
     ]
 });
 
@@ -58,6 +58,8 @@ client.on('interactionCreate', async (interaction) => {
             ]
         });
 
+        logger.info(`Ticket created by ${user.tag} in channel #${channel.name} (${channel.id})`);
+
         const embed = new EmbedBuilder()
             .setTitle('Ticket Created')
             .setDescription('A member of support team will be with you soon.')
@@ -76,18 +78,41 @@ client.on('interactionCreate', async (interaction) => {
         };
 
         await channel.send({ embeds: [embed], components: [closeButton] });
-
         interaction.reply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
     }
 
     if (interaction.customId === 'close_ticket') {
-        await interaction.channel.delete();
+        const channel = interaction.channel;
+
+        if (!process.env.ARCHIVECATEGORY) {
+            logger.warn('Archive category is not set in .env!')
+            return interaction.reply({ content: 'Archive category is not set!', flags: 64 });
+        }
+
+        await channel.setParent(process.env.ARCHIVECATEGORY);
+        await channel.permissionOverwrites.set([
+            {
+                id: channel.guild.id,
+                deny: [PermissionsBitField.Flags.ViewChannel]
+            },
+            {
+                id: process.env.SUPPORTROLE,
+                allow: [PermissionsBitField.Flags.ViewChannel]
+            }
+        ]);
+
+        logger.info(`Ticket closed and archived: #${channel.name} (${channel.id})`);
+        interaction.reply({ content: 'Ticket has been archived.', flags: 64 });
     }
 });
 
 client.on('messageCreate', async (message) => {
     if (message.content === '!ticket') {
-        if (!process.env.IDs.includes(message.author.id)) { logger.warn(`Unauthorized user ${message.author.id} attempted to use a command.`); return; } // limit to defined users
+        if (!process.env.IDs.includes(message.author.id)) {
+            logger.warn(`Unauthorized user ${message.author.id} attempted to use a command.`);
+            return;
+        } // limit to defined users
+
         const embed = new EmbedBuilder()
             .setTitle('Support Ticket')
             .setDescription('Click the button below to open a ticket.')
