@@ -12,6 +12,47 @@ const client = new Client({
     ]
 });
 
+async function archiveChannel (messageThingy, isInteraction) {
+    let member = messageThingy.member;
+    if (!member.roles.cache.has(process.env.SUPPORTROLE)) {
+        logger.info(`${messageThingy.member.name} tried to close ${messageThingy.channel.name} but lacked permissions to do so.`)
+        try {
+            messageThingy.reply({ content: 'You can\'t do that!', flags: 64 });
+        }
+        catch (messageThingyAlreadyReplied) {
+            logger.warn('A ticket closure interaction was just attemped one or more times; rejected by Discord.')
+        }
+    }
+
+    let channel = messageThingy.channel;
+
+    if (!process.env.ARCHIVECATEGORY) {
+        logger.warn('Archive category is not set in .env!');
+        return messageThingy.reply({ content: 'Archive category is not set!', flags: 64 });
+    }
+
+    await channel.setParent(process.env.ARCHIVECATEGORY);
+    await channel.permissionOverwrites.set([
+        {
+            id: channel.guild.id,
+            deny: [PermissionsBitField.Flags.ViewChannel]
+        },
+        {
+            id: process.env.SUPPORTROLE,
+            allow: [PermissionsBitField.Flags.ViewChannel]
+        }
+    ]);
+
+    if (tickets[channel.id]) {
+        tickets[channel.id].status = 'archived';
+        saveTickets();
+    }
+
+    logger.info(`Ticket closed and archived: #${channel.name} (${channel.id})`);
+    if (isInteraction) { messageThingy.reply({ content: 'Ticket has been archived.', flags: 64 }); }
+    else (messageThingy.react('<:check:1334249094708859035>')) // Can't get an ephemeral response to a normal message, so a reaction will have to do!
+}
+
 const channelFile = process.env.DATAFILE || "channels.json"
 
 const logger = winston.createLogger({
@@ -109,49 +150,14 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (interaction.customId === 'close_ticket') {
-        let member = interaction.member;
-        if (!member.roles.cache.has(process.env.SUPPORTROLE)) {
-            logger.info(`${interaction.member.name} tried to close ${interaction.channel.name} but lacked permissions to do so.`)
-            try {
-                interaction.reply({ content: 'You can\'t do that!', flags: 64 });
-            }
-            catch (InteractionAlreadyReplied) {
-                logger.warn('An interaction was just attemped one or more times; rejected by Discord.')
-            }
-        }
-        const channel = interaction.channel;
-
-        if (!process.env.ARCHIVECATEGORY) {
-            logger.warn('Archive category is not set in .env!');
-            return interaction.reply({ content: 'Archive category is not set!', flags: 64 });
-        }
-
-        await channel.setParent(process.env.ARCHIVECATEGORY);
-        await channel.permissionOverwrites.set([
-            {
-                id: channel.guild.id,
-                deny: [PermissionsBitField.Flags.ViewChannel]
-            },
-            {
-                id: process.env.SUPPORTROLE,
-                allow: [PermissionsBitField.Flags.ViewChannel]
-            }
-        ]);
-
-        if (tickets[channel.id]) {
-            tickets[channel.id].status = 'archived';
-            saveTickets();
-        }
-
-        logger.info(`Ticket closed and archived: #${channel.name} (${channel.id})`);
-        interaction.reply({ content: 'Ticket has been archived.', flags: 64 });
+        archiveChannel(interaction, true)
     }
 });
 
 client.on('messageCreate', async (message) => {
-    if (message.content === '!button') {
+    if (message.content === '!openbutton') {
         if (!process.env.IDs.includes(message.author.id)) {
-            logger.warn(`Unauthorized user ${message.author.id} attempted to use a command.`);
+            logger.info(`Unauthorized user ${message.author.id} attempted to use the "!button" command.`);
             return;
         } // limit to defined users
 
@@ -174,7 +180,13 @@ client.on('messageCreate', async (message) => {
 
         await message.channel.send({ embeds: [embed], components: [button] });
 
-        await message.delete()
+        await message.delete() // get rid of the command message (not the command response)
+    }
+
+    else if (message.content === '!close') {
+        if (tickets[message.channelId]) {
+            archiveChannel(message, false)
+        }
     }
 });
 
