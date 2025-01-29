@@ -137,7 +137,7 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 client.on('messageCreate', async (message) => {
-    if (message.content === '!ticket') {
+    if (message.content === '!button') {
         if (!process.env.IDs.includes(message.author.id)) {
             logger.warn(`Unauthorized user ${message.author.id} attempted to use a command.`);
             return;
