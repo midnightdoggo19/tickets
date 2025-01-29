@@ -109,6 +109,16 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (interaction.customId === 'close_ticket') {
+        let member = interaction.member;
+        if (!member.roles.cache.has(process.env.SUPPORTROLE)) {
+            logger.info(`${interaction.member.name} tried to close ${interaction.channel.name} but lacked permissions to do so.`)
+            try {
+                interaction.reply({ content: 'You can\'t do that!', flags: 64 });
+            }
+            catch (InteractionAlreadyReplied) {
+                logger.warn('An interaction was just attemped one or more times; rejected by Discord.')
+            }
+        }
         const channel = interaction.channel;
 
         if (!process.env.ARCHIVECATEGORY) {
