@@ -25,7 +25,7 @@ client.on('interactionCreate', async (interaction) => {
         const user = interaction.user;
 
         if (!TICKET_CATEGORY_ID) {
-            return interaction.reply({ content: 'Ticket category is not set!', ephemeral: true });
+            return interaction.reply({ content: 'Ticket category is not set!', flags: 64 });
         }
 
         const channel = await guild.channels.create({
@@ -67,7 +67,7 @@ client.on('interactionCreate', async (interaction) => {
 
         await channel.send({ embeds: [embed], components: [closeButton] });
 
-        interaction.reply({ content: `Ticket created: <#${channel.id}>`, ephemeral: true });
+        interaction.reply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
     }
 
     if (interaction.customId === 'close_ticket') {
@@ -77,6 +77,7 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on('messageCreate', async (message) => {
     if (message.content === '!ticket') {
+        if (!process.env.IDs.includes(interaction.user.id)) { logger.warn(`Unauthorized user ${interaction.user.username} attempted to use a command.`); return; } // limit to defined users
         const embed = new EmbedBuilder()
             .setTitle('Support Ticket')
             .setDescription('Click the button below to open a ticket.')
