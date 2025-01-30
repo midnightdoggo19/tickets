@@ -40,6 +40,10 @@ async function archiveChannel (messageThingy, isInteraction) {
         {
             id: process.env.SUPPORTROLE,
             allow: [PermissionsBitField.Flags.ViewChannel]
+        },
+        {
+            id: client.user.id,
+            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.AddReactions, PermissionsBitField.Flags.SendMessages]
         }
     ]);
 
@@ -50,10 +54,10 @@ async function archiveChannel (messageThingy, isInteraction) {
 
     logger.info(`Ticket closed and archived: #${channel.name} (${channel.id})`);
     if (isInteraction) { messageThingy.reply({ content: 'Ticket has been archived.', flags: 64 }); }
-    else (messageThingy.react('<:check:1334249094708859035>')) // Can't get an ephemeral response to a normal message, so a reaction will have to do!
+    else (messageThingy.react(process.env.REACT || '✅')) // Can't get an ephemeral response to a normal message, so a reaction will have to do!
 }
 
-const channelFile = process.env.DATAFILE || "channels.json"
+const channelFile = process.env.DATAFILE || 'channels.json'
 
 const logger = winston.createLogger({
     level: process.env.LOGLEVEL || 'info',
