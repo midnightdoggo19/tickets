@@ -19,7 +19,7 @@ async function archiveChannel (messageThingy, isInteraction) {
         try {
             messageThingy.reply({ content: 'You can\'t do that!', flags: 64 });
         }
-        catch (messageThingyAlreadyReplied) {
+        catch (interactionAlreadyReplied) {
             logger.warn('A ticket closure interaction was just attemped one or more times; rejected by Discord.')
         }
     }
@@ -71,7 +71,7 @@ const logger = winston.createLogger({
     ]
 });
 
-let tickets = {};
+let tickets = {}; // for json
 if (fs.existsSync(channelFile)) {
     try {
         tickets = JSON.parse(fs.readFileSync(channelFile));
@@ -138,7 +138,7 @@ client.on('interactionCreate', async (interaction) => {
 
         const embed = new EmbedBuilder()
             .setTitle('Ticket Created')
-            .setDescription('A member of the support team will be with you soon.')
+            .setDescription(process.env.OPENTICKETBODY || 'A member of the support team will be with you soon.')
             .setColor(0x00ff00);
 
         const closeButton = {
