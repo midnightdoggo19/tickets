@@ -11,21 +11,21 @@ module.exports = {
                 .setRequired(true)
         ),
 	async execute(interaction) {
-        await interaction.deferReply()
+        await interaction.deferReply({flags: 64})
         if (!interaction.member.roles.cache.has(process.env.SUPPORTROLE) || !interaction.member.permissions.has([ // check if user can do that
             PermissionsBitField.Flags.ManageRoles,
             PermissionsBitField.Flags.Administrator,
             PermissionsBitField.Flags.ModerateMembers
         ])) {
-            await interaction.editReply({content: 'You don\'t have permission!', flags: 64})
+            await interaction.editReply({ content: 'You don\'t have permission!', flags: 64 });
         };
 
 		const user = interaction.options.getUser('user');
         try {
             await interaction.member.roles.add(interaction.guild.roles.cache.get(process.env.SUPPORTROLE));
-            await interaction.editReply('yes')
+            await interaction.editReply({ content: `Added role to ${user.id}.`, flags: 64 })
         } catch (err) {
-            await interaction.editReply('no');
+            await interaction.editReply({ content: 'Couldn\'t add role.', flags: 64 });
             logger.error(err)
         }
 	},
