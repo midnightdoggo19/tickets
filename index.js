@@ -36,6 +36,10 @@ const commands = [
         description: 'Close a ticket',
 
     },
+    {
+        name: 'open',
+        description: 'Open a ticket'
+    },
 ];
 
 (async () => {
@@ -83,6 +87,67 @@ async function archiveChannel (channel) {
     return `Ticket archived at <t:${Math.floor(Date.now() / 1000)}:F>`
 }
 
+async function createTicket(guild, user, ticketNumber) {
+    if (!process.env.TICKETCATEGORY) {
+        await interaction.reply({ content: 'Ticket category is not set!', flags: 64 });
+    }
+
+    const channel = await guild.channels.create({
+        name: `ticket-${user.username}-${ticketNumber}`,
+        type: 0, // 0 = text channel
+        parent: process.env.TICKETCATEGORY,
+        permissionOverwrites: [
+            {
+                id: guild.id,
+                deny: [PermissionsBitField.Flags.ViewChannel]
+            },
+            {
+                id: user.id,
+                allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
+            },
+            {
+                id: process.env.SUPPORTROLE,
+                allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
+            },
+            {
+                id: client.user.id,
+                allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
+            }
+        ]
+    });
+
+    tickets[channel.id] = {
+        user: user.id,
+        channel: channel.id,
+        status: 'open',
+        ticketNumber: ticketNumber
+    };
+    saveTickets();
+
+    logger.info(`Ticket #${ticketNumber} created by ${user.tag} in channel #${channel.name} (${channel.id})`);
+
+    const embed = new EmbedBuilder()
+        .setTitle('Ticket Created')
+        .setDescription(process.env.OPENTICKETBODY || 'A member of the support team will be with you soon.')
+        .setColor(0x00ff00);
+
+    const closeButton = new ButtonBuilder()
+        .setCustomId('close_ticket')
+        .setLabel('Close Ticket')
+        .setStyle(ButtonStyle.Danger);
+
+    const makeVCButton = new ButtonBuilder()
+        .setCustomId('make_vc')
+        .setLabel('Create VC')
+        .setStyle(ButtonStyle.Secondary);
+
+    const row = new ActionRowBuilder()
+        .addComponents(closeButton, makeVCButton);
+
+    await channel.send({ embeds: [embed], components: [row] });
+    return channel;
+}
+
 const channelFile = process.env.DATAFILE || 'channels.json'
 
 const logger = winston.createLogger({
@@ -117,70 +182,16 @@ client.once('ready', () => {
 // button interactions
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
+
     const guild = interaction.guild;
     const user = interaction.user;
     const userTickets = Object.values(tickets).filter(t => t.user === user.id);
     const ticketNumber = userTickets.length;
+
     interaction.deferReply()
     if (interaction.customId === 'create_ticket') {
-
-        if (!process.env.TICKETCATEGORY) {
-            await interaction.reply({ content: 'Ticket category is not set!', flags: 64 });
-        }
-
-        const channel = await guild.channels.create({
-            name: `ticket-${user.username}-${ticketNumber}`,
-            type: 0, // 0 = text channel
-            parent: process.env.TICKETCATEGORY,
-            permissionOverwrites: [
-                {
-                    id: guild.id,
-                    deny: [PermissionsBitField.Flags.ViewChannel]
-                },
-                {
-                    id: user.id,
-                    allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
-                },
-                {
-                    id: process.env.SUPPORTROLE,
-                    allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
-                },
-                {
-                    id: client.user.id,
-                    allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
-                }
-            ]
-        });
-
-        tickets[channel.id] = {
-            user: user.id,
-            channel: channel.id,
-            status: 'open',
-            ticketNumber: ticketNumber
-        };
-        saveTickets();
-
-        logger.info(`Ticket #${ticketNumber} created by ${user.tag} in channel #${channel.name} (${channel.id})`);
-
-        const embed = new EmbedBuilder()
-            .setTitle('Ticket Created')
-            .setDescription(process.env.OPENTICKETBODY || 'A member of the support team will be with you soon.')
-            .setColor(0x00ff00);
-
-        const closeButton = new ButtonBuilder()
-            .setCustomId('close_ticket')
-            .setLabel('Close Ticket')
-            .setStyle(ButtonStyle.Danger);
-
-        const makeVCButton = new ButtonBuilder()
-            .setCustomId('make_vc')
-            .setLabel('Create VC')
-            .setStyle(ButtonStyle.Secondary);
-
-        const row = new ActionRowBuilder()
-            .addComponents(closeButton, makeVCButton);
-
-        await channel.send({ embeds: [embed], components: [row] });
+        await interaction.deferReply()
+        const channel = await createTicket(guild, user, ticketNumber)
         interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
     } else if (interaction.customId === 'close_ticket') {
         let a = await archiveChannel(interaction.channel)
@@ -241,6 +252,14 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.deferReply()
         let a = await archiveChannel(interaction.channel)
         return interaction.reply({ content: a, flags: 64 });
+    } else if (interaction.commandName === 'open') {
+
+        const userTickets = Object.values(tickets).filter(t => t.user === interaction.user.id);
+        const ticketNumber = userTickets.length;
+
+        await interaction.deferReply()
+        const channel = await createTicket(interaction.guild, interaction.user, ticketNumber)
+        interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
     }
 })
 
