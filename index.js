@@ -1,4 +1,13 @@
-const { Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField } = require('discord.js');
+const { Client,
+    GatewayIntentBits,
+    EmbedBuilder,
+    PermissionsBitField,
+    REST,
+    Routes,
+    ButtonBuilder,
+    ButtonStyle,
+    ActionRowBuilder
+} = require('discord.js');
 require('dotenv').config();
 const winston = require('winston');
 const fs = require('fs');
@@ -8,27 +17,45 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMembers
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildVoiceStates
     ]
 });
 
-async function archiveChannel (messageThingy, isInteraction) {
-    let member = messageThingy.member;
-    if (!member.roles.cache.has(process.env.SUPPORTROLE)) {
-        logger.info(`${messageThingy.member.name} tried to close ${messageThingy.channel.name} but lacked permissions to do so.`)
-        try {
-            messageThingy.reply({ content: 'You can\'t do that!', flags: 64 });
-        }
-        catch (interactionAlreadyReplied) {
-            logger.warn('A ticket closure interaction was just attemped one or more times; rejected by Discord.')
-        }
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+const activeVoiceChannels = new Map();
+
+const commands = [
+    {
+        name: 'button',
+        description: 'Make a ticket button',
+
+    },
+    {
+        name: 'close',
+        description: 'Close a ticket',
+
+    },
+];
+
+(async () => {
+    try {
+        console.log('Registering slash commands...');
+        await rest.put(
+            Routes.applicationCommands(process.env.CLIENT_ID),
+            { body: commands }
+        );
+        console.log('Slash commands registered!');
+
+    } catch (err) {
+        console.error('Error registering slash commands:', err);
     }
+})();
 
-    let channel = messageThingy.channel;
-
+async function archiveChannel (channel) {
     if (!process.env.ARCHIVECATEGORY) {
         logger.warn('Archive category is not set in .env!');
-        return messageThingy.reply({ content: 'Archive category is not set!', flags: 64 });
+        return 'Archive category is not set!'
     }
 
     await channel.setParent(process.env.ARCHIVECATEGORY);
@@ -53,8 +80,7 @@ async function archiveChannel (messageThingy, isInteraction) {
     }
 
     logger.info(`Ticket closed and archived: #${channel.name} (${channel.id})`);
-    if (isInteraction) { messageThingy.reply({ content: 'Ticket has been archived.', flags: 64 }); }
-    else (messageThingy.react(process.env.REACT || '✅')) // Can't get an ephemeral response to a normal message, so a reaction will have to do!
+    return `Ticket archived at <t:${Math.floor(Date.now() / 1000)}:F>`
 }
 
 const channelFile = process.env.DATAFILE || 'channels.json'
@@ -88,19 +114,19 @@ client.once('ready', () => {
     logger.info(`Logged in as ${client.user.tag}`);
 });
 
+// button interactions
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
-
+    const guild = interaction.guild;
+    const user = interaction.user;
+    const userTickets = Object.values(tickets).filter(t => t.user === user.id);
+    const ticketNumber = userTickets.length;
+    interaction.deferReply()
     if (interaction.customId === 'create_ticket') {
-        const guild = interaction.guild;
-        const user = interaction.user;
 
         if (!process.env.TICKETCATEGORY) {
-            return interaction.reply({ content: 'Ticket category is not set!', flags: 64 });
+            await interaction.reply({ content: 'Ticket category is not set!', flags: 64 });
         }
-
-        const userTickets = Object.values(tickets).filter(t => t.user === user.id);
-        const ticketNumber = userTickets.length;
 
         const channel = await guild.channels.create({
             name: `ticket-${user.username}-${ticketNumber}`,
@@ -141,65 +167,106 @@ client.on('interactionCreate', async (interaction) => {
             .setDescription(process.env.OPENTICKETBODY || 'A member of the support team will be with you soon.')
             .setColor(0x00ff00);
 
-        const closeButton = {
-            type: 1,
-            components: [
+        const closeButton = new ButtonBuilder()
+            .setCustomId('close_ticket')
+            .setLabel('Close Ticket')
+            .setStyle(ButtonStyle.Danger);
+
+        const makeVCButton = new ButtonBuilder()
+            .setCustomId('make_vc')
+            .setLabel('Create VC')
+            .setStyle(ButtonStyle.Secondary);
+
+        const row = new ActionRowBuilder()
+            .addComponents(closeButton, makeVCButton);
+
+        await channel.send({ embeds: [embed], components: [row] });
+        interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
+    } else if (interaction.customId === 'close_ticket') {
+        let a = await archiveChannel(interaction.channel)
+        return interaction.editReply({ content: a, flags: 64 });
+        
+    } else if (interaction.customId === 'make_vc') {
+        interaction.deferReply()
+        const VC = await guild.channels.create({
+            name: `ticket-${user.username}-VC`,
+            type: 2,
+            parent: process.env.TICKETCATEGORY,
+            permissionOverwrites: [
                 {
-                    type: 2,
-                    label: 'Close Ticket',
-                    style: 4,
-                    custom_id: 'close_ticket'
+                    id: guild.id,
+                    deny: [PermissionsBitField.Flags.ViewChannel]
+                },
+                {
+                    id: user.id,
+                    allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
+                },
+                {
+                    id: process.env.SUPPORTROLE,
+                    allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
+                },
+                {
+                    id: client.user.id,
+                    allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
                 }
             ]
-        };
-
-        try{
-            await channel.send({ embeds: [embed], components: [closeButton] });
-            interaction.reply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
-        }
-        catch (DiscordAPIError) {
-            logger.error('An error occured, probably couldn\'t access the ticket category.')
-        }
-    }
-
-    if (interaction.customId === 'close_ticket') {
-        archiveChannel(interaction, true)
+        });
+        await interaction.editReply({ content: 'VC Created!', flags: 64 });
+        logger.info(`${interaction.user.username} created a new voice channel.`)
     }
 });
 
-client.on('messageCreate', async (message) => {
-    if (message.content === '!openbutton') {
-        if (!process.env.IDs.includes(message.author.id)) {
-            logger.info(`Unauthorized user ${message.author.id} attempted to use the "!button" command.`);
-            return;
-        } // limit to defined users
-
+// command interactions
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+    if (interaction.commandName === 'button') {
+        await interaction.deferReply()
         const embed = new EmbedBuilder()
             .setTitle('Support Ticket')
             .setDescription('Click the button below to open a ticket.')
             .setColor(0x00ff00);
 
-        const button = {
-            type: 1,
-            components: [
-                {
-                    type: 2,
-                    label: 'Create Ticket',
-                    style: 1,
-                    custom_id: 'create_ticket'
-                }
-            ]
-        };
+        const createTicket = new ButtonBuilder()
+            .setCustomId('create_ticket')
+            .setLabel('Create Ticket')
+            .setStyle(ButtonStyle.Success);
 
-        await message.channel.send({ embeds: [embed], components: [button] });
+        const row = new ActionRowBuilder()
+            .addComponents(createTicket);
 
-        await message.delete() // get rid of the command message (not the command response)
+        await interaction.channel.send({ embeds: [embed], components: [row] });
+
+        interaction.deleteReply()
+    } else if (interaction.commandName === 'close') {
+        await interaction.deferReply()
+        let a = await archiveChannel(interaction.channel)
+        return interaction.reply({ content: a, flags: 64 });
+    }
+})
+
+client.on('voiceStateUpdate', (oldState, newState) => {
+    const channel = oldState.channel || newState.channel;
+  
+    if (!channel || channel.parentId !== process.env.TICKETCATEGORY) return;
+  
+    if (newState.channel) {
+        if (activeVoiceChannels.has(channel.id)) {
+            clearTimeout(activeVoiceChannels.get(channel.id));
+            activeVoiceChannels.delete(channel.id);
+        }
+        return;
     }
 
-    else if (message.content === '!close') {
-        if (tickets[message.channelId]) {
-            archiveChannel(message, false)
-        }
+    if (channel.members.size === 0) {
+        const timeout = setTimeout(async () => {
+            try {
+            await channel.delete();
+            activeVoiceChannels.delete(channel.id);
+            } catch (err) {
+                console.error(`Failed to delete voice channel: ${err}`);
+            }
+        }, 30000); // 30 seconds
+        activeVoiceChannels.set(channel.id, timeout);
     }
 });
 
