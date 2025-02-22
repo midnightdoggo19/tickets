@@ -13,6 +13,8 @@ const fs = require('node:fs');
 const channelFile = './channels.json'
 const dataFile = './data.json';
 
+const noPermission = process.env.NOPERMISSION || 'You don\'t have permission to do that!';
+
 let tickets = {}; // for json
 let ticketNumber = 0 // default
 
@@ -80,19 +82,21 @@ async function createTicket(guild, user, ticketNumber) {
     });
 
     const embed = new EmbedBuilder()
-        .setTitle('Ticket Created')
+        .setTitle(process.env.OPENTICKETTITLE || 'Ticket Created')
         .setDescription(process.env.OPENTICKETBODY || 'A member of the support team will be with you soon.')
         .setColor(0x00ff00);
 
     const closeButton = new ButtonBuilder()
         .setCustomId('close_ticket')
         .setLabel('Close Ticket')
-        .setStyle(ButtonStyle.Danger);
+        .setStyle(ButtonStyle.Danger)
+        .setEmoji(process.env.EMOJI_DELETE || '⚠️');
 
     const makeVCButton = new ButtonBuilder()
         .setCustomId('make_vc')
         .setLabel('Create VC')
-        .setStyle(ButtonStyle.Secondary);
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji(process.env.EMOJI_VC || '🎙️');
 
     const row = new ActionRowBuilder()
         .addComponents(closeButton, makeVCButton);
@@ -132,4 +136,4 @@ const saveTickets = () => {
     fs.writeFileSync(channelFile, JSON.stringify(tickets, null, 2));
 };
 
-module.exports = { archiveChannel, tickets, dataFile, logger, channelFile, ticketNumber, tickets, createTicket }
+module.exports = { archiveChannel, tickets, dataFile, logger, channelFile, ticketNumber, tickets, createTicket, noPermission }

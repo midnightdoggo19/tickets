@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { tickets } = require('../../functions');
+const { tickets, noPermission } = require('../../functions');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -29,7 +29,7 @@ module.exports = {
             PermissionsBitField.Flags.Administrator,
             PermissionsBitField.Flags.ModerateMembers
         ])) {
-            await interaction.editReply({content: 'You don\'t have permission!', flags: 64})
+            await interaction.editReply({content: noPermission, flags: 64})
         };
 
         const user = interaction.options.getUser('user');

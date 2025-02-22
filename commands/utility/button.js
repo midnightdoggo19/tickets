@@ -3,7 +3,9 @@ const {
 	EmbedBuilder,
 	ActionRowBuilder,
 	ButtonBuilder,
-	ButtonStyle } = require('discord.js');
+	ButtonStyle
+} = require('discord.js');
+require('dotenv').config()
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -19,7 +21,8 @@ module.exports = {
 		const createTicket = new ButtonBuilder()
 			.setCustomId('create_ticket')
 			.setLabel('Create Ticket')
-			.setStyle(ButtonStyle.Success);
+			.setStyle(ButtonStyle.Success)
+			.setEmoji(process.env.EMOJI_CREATE || '🎟️');
 
 		const row = new ActionRowBuilder()
 			.addComponents(createTicket);
