@@ -12,6 +12,9 @@ require('dotenv').config();
 const winston = require('winston');
 const fs = require('fs');
 
+const channelFile = './channels.json'
+const dataFile = './data.json';
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -24,6 +27,16 @@ const client = new Client({
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 const activeVoiceChannels = new Map();
+
+let tickets = {}; // for json
+
+// create files if they don't exist
+if (!fs.existsSync(dataFile)) {
+    fs.writeFileSync(dataFile, JSON.stringify({}, null, 2), 'utf8');
+}
+if (!fs.existsSync(channelFile)) {
+    fs.writeFileSync(channelFile, JSON.stringify({}, null, 2), 'utf8');
+}
 
 const commands = [
     {
@@ -40,6 +53,24 @@ const commands = [
         name: 'open',
         description: 'Open a ticket'
     },
+    {
+        name: 'blacklist',
+        description: 'Prevent a user from interacting with the bot',
+        options: [
+            {
+                name: 'user',
+                type: 6, // user
+                description: 'User to add/remove',
+                required: true,
+            },
+            {
+                name: 'remove',
+                type: 5,
+                description: 'True: remove; False: add',
+                required: true
+            }
+          ],
+    }
 ];
 
 (async () => {
@@ -148,8 +179,6 @@ async function createTicket(guild, user, ticketNumber) {
     return channel;
 }
 
-const channelFile = process.env.DATAFILE || 'channels.json'
-
 const logger = winston.createLogger({
     level: process.env.LOGLEVEL || 'info',
     format: winston.format.combine(
@@ -162,15 +191,6 @@ const logger = winston.createLogger({
     ]
 });
 
-let tickets = {}; // for json
-if (fs.existsSync(channelFile)) {
-    try {
-        tickets = JSON.parse(fs.readFileSync(channelFile));
-    } catch (error) {
-        logger.error('Failed to load ticket data:', error);
-    }
-}
-
 const saveTickets = () => {
     fs.writeFileSync(channelFile, JSON.stringify(tickets, null, 2));
 };
@@ -182,15 +202,14 @@ client.once('ready', () => {
 // button interactions
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
-
+    await interaction.deferReply()
+    if (interaction.user.id in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) { interaction.deleteReply(); return; }
     const guild = interaction.guild;
     const user = interaction.user;
     const userTickets = Object.values(tickets).filter(t => t.user === user.id);
     const ticketNumber = userTickets.length;
 
-    interaction.deferReply()
     if (interaction.customId === 'create_ticket') {
-        await interaction.deferReply()
         const channel = await createTicket(guild, user, ticketNumber)
         interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
     } else if (interaction.customId === 'close_ticket') {
@@ -198,7 +217,6 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.editReply({ content: a, flags: 64 });
         
     } else if (interaction.customId === 'make_vc') {
-        interaction.deferReply()
         const VC = await guild.channels.create({
             name: `ticket-${user.username}-VC`,
             type: 2,
@@ -230,8 +248,9 @@ client.on('interactionCreate', async (interaction) => {
 // command interactions
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isCommand()) return;
+    await interaction.deferReply()
+    if (interaction.user.id in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) { interaction.deleteReply(); return; }
     if (interaction.commandName === 'button') {
-        await interaction.deferReply()
         const embed = new EmbedBuilder()
             .setTitle('Support Ticket')
             .setDescription('Click the button below to open a ticket.')
@@ -249,7 +268,6 @@ client.on('interactionCreate', async (interaction) => {
 
         interaction.deleteReply()
     } else if (interaction.commandName === 'close') {
-        await interaction.deferReply()
         let a = await archiveChannel(interaction.channel)
         return interaction.reply({ content: a, flags: 64 });
     } else if (interaction.commandName === 'open') {
@@ -257,9 +275,20 @@ client.on('interactionCreate', async (interaction) => {
         const userTickets = Object.values(tickets).filter(t => t.user === interaction.user.id);
         const ticketNumber = userTickets.length;
 
-        await interaction.deferReply()
         const channel = await createTicket(interaction.guild, interaction.user, ticketNumber)
         interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
+    } else if (interaction.commandName === 'blacklist') {
+        const json = require(dataFile);
+        const user = interaction.options.getUser('user');
+
+        if (interaction.options.getBoolean('remove') === true) {
+            delete json[user.id];
+        } else {
+            json[user.id] = 'blacklisted';
+        }
+        fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
+
+        interaction.editReply({ content: `Blacklisted <@${user.id}>`, flags: 64 });
     }
 })
 
