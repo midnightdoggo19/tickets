@@ -69,7 +69,11 @@ const commands = [
                 description: 'True: remove; False: add',
                 required: true
             }
-          ],
+        ],
+    },
+    {
+        name: 'top',
+        description: 'Go to the top of the ticket'
     }
 ];
 
@@ -150,16 +154,6 @@ async function createTicket(guild, user, ticketNumber) {
         ]
     });
 
-    tickets[channel.id] = {
-        user: user.id,
-        channel: channel.id,
-        status: 'open',
-        ticketNumber: ticketNumber
-    };
-    saveTickets();
-
-    logger.info(`Ticket #${ticketNumber} created by ${user.tag} in channel #${channel.name} (${channel.id})`);
-
     const embed = new EmbedBuilder()
         .setTitle('Ticket Created')
         .setDescription(process.env.OPENTICKETBODY || 'A member of the support team will be with you soon.')
@@ -179,6 +173,21 @@ async function createTicket(guild, user, ticketNumber) {
         .addComponents(closeButton, makeVCButton);
 
     await channel.send({ embeds: [embed], components: [row] });
+
+    const messages = await channel.messages.fetch({ limit: 1 });
+    const lastMessage = messages.first();
+
+    tickets[channel.id] = {
+        user: user.id,
+        channel: channel.id,
+        status: 'open',
+        ticketNumber: ticketNumber,
+        embed: Number(lastMessage.id)
+    };
+
+    saveTickets();
+    logger.info(`Ticket #${ticketNumber} created by ${user.tag} in channel #${channel.name} (${channel.id})`);
+
     return channel;
 }
 
@@ -292,6 +301,10 @@ client.on('interactionCreate', async (interaction) => {
         fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
 
         interaction.editReply({ content: `Blacklisted <@${user.id}>`, flags: 64 });
+    } else if (interaction.commandName === 'top') {
+        const existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
+        const first = await JSON.stringify(existingChannels[interaction.channel.id]['embed']);
+        await interaction.editReply(`[Jump to top](https://discord.com/channels/${interaction.guild.id}/${interaction.channel.parentId}/${first})`);
     }
 })
 
