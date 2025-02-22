@@ -17,7 +17,6 @@ Fill the information in `.example.env` and rename it to `.env`:
 # From Discord Developer Page of your bot
 TOKEN='your bot token'
 CLIENT_ID='the ID of the bot'
-REACT='any emoji ID' # upload an emoji and click "Copy Markdown" to get this value (optional)
 
 # From your server
 TICKET_CATEGORY_ID = 'category ID' # Category in which active tickets will be created - make a **new** category for this! 
