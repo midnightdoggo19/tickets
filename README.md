@@ -43,6 +43,12 @@ npm start
 ```
 /close - close the current ticket
 /button - create a button to make tickets with
+/top - Go to the top of the ticket
+/ping - Check if the bot is online
+/open - Open a new ticket
+/blacklist - Forbid users from accessing the bot
+/role - Give users the defined support role easily
+/updateuser - Add or remove a user from the current ticket
 ```
 ## NPM
 ```
