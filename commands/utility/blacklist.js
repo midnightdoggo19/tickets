@@ -4,9 +4,23 @@ const { dataFile } = require('../../functions');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('blacklist')
-		.setDescription('Edit the blacklist'),
+		.setDescription('Edit the blacklist')
+        .addUserOption(option =>
+            option.setName('name')
+                .setDescription('User to modify')
+                .setRequired(true)
+        )
+        .addBooleanOption(option =>
+            option.setName('remove')
+                .setDescription('True: remove; False: add')
+                .setRequired(true)
+        ),
 	async execute(interaction) {
 		await interaction.deferReply()
+        if (!interaction.member.roles.cache.some(role => role === process.env.SUPPORTROLE)) {
+            await interaction.editReply({content: 'You don\'t have permission!', flags: 64})
+        }
+
 		const json = require(dataFile);
         const user = interaction.options.getUser('user');
 

@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { channelFile } = require('../../functions');
+const fs = require('fs');
 
 module.exports = {
 	data: new SlashCommandBuilder()
