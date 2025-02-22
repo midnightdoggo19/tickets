@@ -93,7 +93,8 @@ async function archiveChannel (channel) {
         return 'Archive category is not set!'
     }
 
-    if (channel.id in JSON.parse(fs.readFileSync(channelFile, 'utf8'))) return 'Channel already archived!';
+    const existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
+    if (existingChannels.hasOwnProperty(channel.id) && existingChannels[channel.id].hasOwnProperty('status') && existingChannels[channel.id]['status'] === 'archived') { return 'Channel already archived!'; }
 
     await channel.setParent(process.env.ARCHIVECATEGORY);
     await channel.permissionOverwrites.set([
