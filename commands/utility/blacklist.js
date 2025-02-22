@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const { dataFile } = require('../../functions');
 
 module.exports = {
@@ -17,9 +17,13 @@ module.exports = {
         ),
 	async execute(interaction) {
 		await interaction.deferReply()
-        if (!interaction.member.roles.cache.some(role => role === process.env.SUPPORTROLE)) {
+        if (!interaction.member.roles.cache.has(process.env.SUPPORTROLE) || !interaction.member.permissions.has([ // check if user can do that
+            PermissionsBitField.Flags.ManageRoles,
+            PermissionsBitField.Flags.Administrator,
+            PermissionsBitField.Flags.ModerateMembers
+        ])) {
             await interaction.editReply({content: 'You don\'t have permission!', flags: 64})
-        }
+        };
 
 		const json = require(dataFile);
         const user = interaction.options.getUser('user');

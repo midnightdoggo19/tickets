@@ -67,7 +67,7 @@ client.on('interactionCreate', async (interaction) => {
     } else if (interaction.customId === 'close_ticket') {
         let a = await archiveChannel(interaction.channel)
         return interaction.editReply({ content: a, flags: 64 });
-        
+
     } else if (interaction.customId === 'make_vc') {
         const VC = await guild.channels.create({
             name: `ticket-${user.username}-VC`,

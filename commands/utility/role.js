@@ -12,13 +12,13 @@ module.exports = {
         ),
 	async execute(interaction) {
         await interaction.deferReply()
-        if (!member.roles.cache.has(process.env.SUPPORTROLE) || member.permissions.has([ // check if user can do that
+        if (!interaction.member.roles.cache.has(process.env.SUPPORTROLE) || !interaction.member.permissions.has([ // check if user can do that
             PermissionsBitField.Flags.ManageRoles,
             PermissionsBitField.Flags.Administrator,
             PermissionsBitField.Flags.ModerateMembers
         ])) {
             await interaction.editReply({content: 'You don\'t have permission!', flags: 64})
-        }
+        };
 
 		const user = interaction.options.getUser('user');
         try {
