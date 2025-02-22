@@ -44,8 +44,9 @@ TICKET_CATEGORY_ID = 'category ID' # Category in which active tickets will be cr
 SUPPORT_ROLE_ID = 'role ID' # Role ID allowed to access tickets
 ARCHIVECATEGORY = 'another category ID' # Where tickets go after being closed
 
-# Logging (optional values - defaults will otherwise be used)
-LOGFILE='tickets.log' # Where logs are saved
+# Optional configuration
+## Logging (optional values - defaults will otherwise be used)
+LOGFILE='./tickets.log' # Where logs are saved
 LOGLEVEL='info' # Can be updated as required
 
 # Emojis - optional
@@ -53,6 +54,12 @@ LOGLEVEL='info' # Can be updated as required
 #EMOJI_CREATE = '' # on create ticket button
 #EMOJI_DELETE = '' # on delete ticket button
 #EMOJI_VC = '' # on VC button
+
+# Text
+# Also optional
+#OPENTICKETTITLE = 'Ticket Created' # embed title
+#OPENTICKETBODY = 'A member of the support team will be with you soon.' # embed body
+#NOPERMISSION = 'You don\'t have permission to do that!' # When there's no permission
 ```
 
 The bot is now ready to run:
