@@ -7,6 +7,7 @@ const {
     ButtonStyle,
     ActionRowBuilder,
 } = require('discord.js');
+
 const fs = require('node:fs');
 
 const channelFile = './channels.json'
@@ -15,11 +16,13 @@ const dataFile = './data.json';
 let tickets = {}; // for json
 let ticketNumber = 0 // default
 
-async function archiveChannel (channel, client) {
+async function archiveChannel (channel) {
     if (!process.env.ARCHIVECATEGORY) {
         logger.warn('Archive category is not set in .env!');
-        return 'Archive category is not set!'
+        return 'Archive category is not set!';
     }
+
+    if (!tickets[channel.id]) { return 'Not a ticket!' };
 
     const existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
     if (existingChannels.hasOwnProperty(channel.id) && existingChannels[channel.id].hasOwnProperty('status') && existingChannels[channel.id]['status'] === 'archived') { return 'Channel already archived!'; }
@@ -40,16 +43,14 @@ async function archiveChannel (channel, client) {
         }
     ]);
 
-    if (tickets[channel.id]) {
-        tickets[channel.id].status = 'archived';
-        saveTickets();
-    }
+    tickets[channel.id].status = 'archived';
+    saveTickets();
 
     logger.info(`Ticket closed and archived: #${channel.name} (${channel.id})`);
     return `Ticket archived at <t:${Math.floor(Date.now() / 1000)}:F>`
 }
 
-async function createTicket(guild, user, ticketNumber, id) {
+async function createTicket(guild, user, ticketNumber) {
     if (!process.env.TICKETCATEGORY) {
         await interaction.reply({ content: 'Ticket category is not set!', flags: 64 });
     }
