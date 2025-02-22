@@ -23,7 +23,6 @@ REACT='any emoji ID' # upload an emoji and click "Copy Markdown" to get this val
 TICKET_CATEGORY_ID = 'category ID' # Category in which active tickets will be created - make a **new** category for this! 
 SUPPORT_ROLE_ID = 'role ID' # Role ID allowed to access tickets
 ARCHIVECATEGORY = 'another category ID' # Where tickets go after being closed
-IDs=[ 'a user ID', 'another user ID'] # Users allowed to issue commands - not required to manage tickets
 
 # Logging (optional values - defaults will otherwise be used)
 LOGFILE='tickets.log' # Where logs are saved
@@ -40,3 +39,16 @@ npm start
 * Message Content
 # Required Permissions:
 ![perms](https://github.com/user-attachments/assets/d47c05cf-5c49-4523-a3d8-70c2dc1176c2)
+
+# Commands
+## Discord
+```
+/close - close the current ticket
+/button - create a button to make tickets with
+```
+## NPM
+```
+npm start - run the bot
+npm test - make sure package*.json is valid
+npm run clear - remove all old tickets from the archive category
+```

@@ -18,8 +18,7 @@ client.once('ready', async () => {
     if (!guild) return console.log('Guild not found');
 
     const categoryId = process.env.ARCHIVECATEGORY;
-
-      const category = guild.channels.cache.get(categoryId);
+        const category = guild.channels.cache.get(categoryId);
     if (!category || category.type !== 4) {
         return console.log('Category not found or invalid');
     }
