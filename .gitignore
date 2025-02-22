@@ -1,5 +1,5 @@
 # Default data file
-tickets.json
+channels.json
 data.json
 
 # Logs
@@ -132,3 +132,4 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+channels.json
