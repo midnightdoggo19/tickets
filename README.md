@@ -1,8 +1,28 @@
-# Instructions for Use
+# Features
+## Discord
+```
+/close - close the current ticket
+/button - create a button to make tickets with
+/top - Go to the top of the ticket
+/ping - Check if the bot is online
+/open - Open a new ticket
+/blacklist - Forbid users from accessing the bot
+/role - Give users the defined support role easily
+/updateuser - Add or remove a user from the current ticket
+```
+## NPM
+```
+npm start - run the bot
+npm test - make sure package*.json is valid
+npm run clear - remove all old tickets from the archive category
+npm run register - register slash commands with discord
+```
+
+# Installation
 
 Clone the repo:
 ```
-git clone https://github.com/midnightdoggo19/tickets
+git clone https://github.com/midnightdoggo19/tickets.git
 ```
 Enter the new directory:
 ```
@@ -10,6 +30,7 @@ cd tickets
 ```
 Install dependencies:
 ```
+npm run register
 npm i
 ```
 Fill the information in `.example.env` and rename it to `.env`:
@@ -32,27 +53,8 @@ The bot is now ready to run:
 ```
 npm start
 ```
-# Required Intents:
+## Required Intents:
 * Server Members
 * Message Content
-# Required Permissions:
-![perms](https://github.com/user-attachments/assets/d47c05cf-5c49-4523-a3d8-70c2dc1176c2)
-
-# Commands
-## Discord
-```
-/close - close the current ticket
-/button - create a button to make tickets with
-/top - Go to the top of the ticket
-/ping - Check if the bot is online
-/open - Open a new ticket
-/blacklist - Forbid users from accessing the bot
-/role - Give users the defined support role easily
-/updateuser - Add or remove a user from the current ticket
-```
-## NPM
-```
-npm start - run the bot
-npm test - make sure package*.json is valid
-npm run clear - remove all old tickets from the archive category
-```
+## Required Permissions:
+![Permissions](https://github.com/user-attachments/assets/8581133a-c545-4a00-8ee3-1718cafd7b0a)
