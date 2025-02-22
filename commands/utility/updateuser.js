@@ -3,7 +3,7 @@ const { tickets } = require('../../functions');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('updateusers')
+		.setName('updateuser')
 		.setDescription('Add or remove a a user from the current ticket')
 	.addUserOption(option =>
 		option.setName('user')
@@ -16,7 +16,7 @@ module.exports = {
 			.setRequired(true)
 			.addChoices(
 				{ name: 'Add', value: 'add' },
-				{ name: 'Remove', value: 'remov' },
+				{ name: 'Remove', value: 'remov' }, // this is not a tyop
 	)),
 
 	async execute(interaction) {

@@ -6,7 +6,7 @@ module.exports = {
 		.setName('close')
 		.setDescription('Close a ticket'),
 	async execute(interaction) {
-		await interaction.deferReply()
+		await interaction.deferReply({flags: 64})
 		const a = await archiveChannel(interaction.channel);
         return interaction.editReply({ content: a, flags: 64 });
 	},
