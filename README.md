@@ -51,9 +51,9 @@ LOGLEVEL='info' # Can be updated as required
 
 # Emojis - optional
 # type a backslash (\) and then the emoji's name in the message box to get the ID
-#EMOJI_CREATE = '' # on create ticket button
-#EMOJI_DELETE = '' # on delete ticket button
-#EMOJI_VC = '' # on VC button
+#EMOJI_CREATE = '🎟️' # on create ticket button
+#EMOJI_DELETE = '⚠️' # on delete ticket button
+#EMOJI_VC = '🎙️' # on VC button
 
 # Text
 # Also optional
