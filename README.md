@@ -27,7 +27,6 @@ ARCHIVECATEGORY = 'another category ID' # Where tickets go after being closed
 # Logging (optional values - defaults will otherwise be used)
 LOGFILE='tickets.log' # Where logs are saved
 LOGLEVEL='info' # Can be updated as required
-DATAFILE = 'channels.json' # Ticket data location
 ```
 
 The bot is now ready to run:
