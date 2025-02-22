@@ -3,7 +3,8 @@
   "scripts": {
     "test": "jest",
     "start": "node index.js",
-    "clear": "node clearcategory.js"
+    "clear": "node clearcategory.js",
+    "register": "node deploy.js"
   },
   "dependencies": {
     "discord.js": "^14.18.0",
