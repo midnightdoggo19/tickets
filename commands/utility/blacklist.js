@@ -3,16 +3,11 @@ const { dataFile, noPermission } = require('../../functions');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('blacklist')
+		.setName('blacklist add')
 		.setDescription('Edit the blacklist')
         .addUserOption(option =>
             option.setName('name')
                 .setDescription('User to modify')
-                .setRequired(true)
-        )
-        .addBooleanOption(option =>
-            option.setName('remove')
-                .setDescription('True: remove; False: add')
                 .setRequired(true)
         )
         .setContexts(0),
@@ -29,11 +24,8 @@ module.exports = {
 		const json = require(dataFile);
         const user = interaction.options.getUser('user');
 
-        if (interaction.options.getBoolean('remove') === true) {
-            delete json[user.id];
-        } else {
-            json[user.id] = 'blacklisted';
-        }
+        json[user.id] = 'blacklisted';
+        
         fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
 
         interaction.editReply({ content: `Blacklisted <@${user.id}>`, flags: 64 });
