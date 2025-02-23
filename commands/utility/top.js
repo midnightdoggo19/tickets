@@ -5,7 +5,9 @@ const fs = require('fs');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('top')
-		.setDescription('Go to the top of the ticket'),
+		.setDescription('Go to the top of the ticket')
+	.setContexts(0),
+	
 	async execute(interaction) {
 		await interaction.deferReply()
 		const existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));

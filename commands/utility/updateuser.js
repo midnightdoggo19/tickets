@@ -17,7 +17,8 @@ module.exports = {
 			.addChoices(
 				{ name: 'Add', value: 'add' },
 				{ name: 'Remove', value: 'remov' }, // this is not a tyop
-	)),
+	))
+	.setContexts(0),
 
 	async execute(interaction) {
         await interaction.deferReply({flags: 64});

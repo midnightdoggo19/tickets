@@ -10,7 +10,9 @@ require('dotenv').config()
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('button')
-		.setDescription('Make a ticket button'),
+		.setDescription('Make a ticket button')
+	.setContexts(0),
+	
 	async execute(interaction) {
 		await interaction.deferReply()
 		const embed = new EmbedBuilder()

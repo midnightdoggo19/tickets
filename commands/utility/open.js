@@ -4,7 +4,9 @@ const { createTicket, ticketNumber, tickets } = require('../../functions');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('open')
-		.setDescription('Open a ticket'),
+		.setDescription('Open a ticket')
+	.setContexts(0),
+
 	async execute(interaction) {
 		await interaction.deferReply()
 

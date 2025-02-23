@@ -9,7 +9,8 @@ module.exports = {
             option.setName('user')
                 .setDescription('User to modify')
                 .setRequired(true)
-        ),
+        )
+        .setContexts(0),
 	async execute(interaction) {
         await interaction.deferReply({flags: 64})
         if (!interaction.member.roles.cache.has(process.env.SUPPORTROLE) || !interaction.member.permissions.has([ // check if user can do that

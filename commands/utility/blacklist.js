@@ -14,7 +14,8 @@ module.exports = {
             option.setName('remove')
                 .setDescription('True: remove; False: add')
                 .setRequired(true)
-        ),
+        )
+        .setContexts(0),
 	async execute(interaction) {
 		await interaction.deferReply()
         if (!interaction.member.roles.cache.has(process.env.SUPPORTROLE) || !interaction.member.permissions.has([ // check if user can do that
