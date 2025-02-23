@@ -4,10 +4,10 @@ const { dataFile, noPermission } = require('../../functions');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('blacklist add')
-		.setDescription('Edit the blacklist')
+		.setDescription('Add a user to the blacklist')
         .addUserOption(option =>
             option.setName('name')
-                .setDescription('User to modify')
+                .setDescription('User to add')
                 .setRequired(true)
         )
         .setContexts(0),

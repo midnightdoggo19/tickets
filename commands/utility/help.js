@@ -21,6 +21,7 @@ module.exports = {
                 { name: '/updateuser', value: 'Adds/removes a user from a ticket' },
                 { name: '/support', value: `List all users with <@&${process.env.SUPPORTROLE}>` },
                 { name: '/about', value: 'Some info on the bot'},
+                { name: '/blacklist remove', value: 'Remove a user from the blacklist' },
             )
             .setColor('135f91');
 
