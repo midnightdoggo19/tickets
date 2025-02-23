@@ -7,12 +7,14 @@ const {
     Events
 } = require('discord.js');
 const express = require('express');
-const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile } = require('./functions')
+const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile, usersFile } = require('./functions')
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const favicon = require('serve-favicon');
 const app = express();
+const session = require('express-session');
+const bcrypt = require('bcrypt');
 
 const client = new Client({
     intents: [
@@ -163,6 +165,14 @@ client.login(process.env.TOKEN);
 // fetch tickets
 const logFile = path.join(__dirname, './logs/server.log');
 app.use(favicon(path.join(__dirname, 'public', 'assets/favicon.ico')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+    secret: process.env.SECRET, // Change this to a strong, unique secret
+    resave: false,
+    saveUninitialized: true
+}));
 
 function expressLog(message) {
     const timestamp = new Date().toISOString();
@@ -199,13 +209,48 @@ app.get('/api/tickets', (req, res) => {
 app.post('/api/tickets/:id/close', async (req, res) => {
     const ticketId = req.params.id;
     const apiChannel = await client.channels.fetch(ticketId);
-    // console.log(apiChannel);
     archiveChannel(apiChannel);
     res.json({ success: true, message: `Ticket ${ticketId} closed` });
 });
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+let users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile)) : {};
+
+// registration
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+    if (users[username]) return res.status(400).send('User already exists');
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    users[username] = { password: hashedPassword };
+    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+
+    res.send('User registered successfully');
+});
+
+// login
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = users[username];
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.status(401).send('Invalid credentials');
+    }
+
+    req.session.user = username;
+    res.send('Login successful');
+});
+
+function requireAuth(req, res, next) {
+    if (!req.session.user) return res.status(401).send('Unauthorized');
+    next();
+}
+
+app.get('/tickets', requireAuth, (req, res) => {
+    res.json(tickets);
 });
 
 if (port != 0) { // disable web if port is zero

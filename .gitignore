@@ -1,6 +1,7 @@
-# Default data file
+# Default data files
 channels.json
 data.json
+users.json
 
 # Logs
 logs

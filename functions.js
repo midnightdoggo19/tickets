@@ -12,10 +12,11 @@ const fs = require('node:fs');
 
 const channelFile = './channels.json'
 const dataFile = './data.json';
+const usersFile = 'users.json';
 
 const noPermission = process.env.NOPERMISSION || 'You don\'t have permission to do that!';
 
-let tickets = {}; // for json
+let tickets = fs.existsSync(channelFile) ? JSON.parse(fs.readFileSync(channelFile)) : [];
 let ticketNumber = 0 // default
 
 function isJSON(str) {
@@ -148,4 +149,4 @@ const saveTickets = (save) => {
     fs.writeFileSync(channelFile, JSON.stringify(save, null, 2));
 };
 
-module.exports = { archiveChannel, tickets, dataFile, logger, channelFile, ticketNumber, tickets, createTicket, noPermission }
+module.exports = { archiveChannel, tickets, dataFile, logger, channelFile, ticketNumber, tickets, createTicket, noPermission, usersFile }

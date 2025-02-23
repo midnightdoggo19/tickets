@@ -7,9 +7,11 @@
     "register": "node deploy.js"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-session": "^1.18.1",
     "serve-favicon": "^2.5.0",
     "winston": "^3.17.0"
   },
