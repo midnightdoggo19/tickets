@@ -3,7 +3,7 @@ const { dataFile, noPermission } = require('../../functions');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('blacklist remove')
+		.setName('blacklist-remove')
 		.setDescription('Remove a user from the blacklist')
         .addUserOption(option =>
             option.setName('name')
@@ -12,7 +12,7 @@ module.exports = {
         )
         .setContexts(0),
 	async execute(interaction) {
-		await interaction.deferReply()
+		await interaction.deferReply({ flags: 64 });
         if (!interaction.member.roles.cache.has(process.env.SUPPORTROLE) || !interaction.member.permissions.has([ // check if user can do that
             PermissionsBitField.Flags.ManageRoles,
             PermissionsBitField.Flags.Administrator,

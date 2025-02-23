@@ -16,12 +16,12 @@ module.exports = {
                 { name: '/top', value: 'Lets you go to the top of the ticket' },
                 { name: '/ping', value: 'Checks if the bot is responsive' },
                 { name: '/open', value: 'Opens a ticket' },
-                { name: '/blacklist add', value: 'Prevents a user from interacting with the bot' },
+                { name: '/blacklist-add', value: 'Prevents a user from interacting with the bot' },
                 { name: '/role', value: 'Gives a user the support role' },
                 { name: '/updateuser', value: 'Adds/removes a user from a ticket' },
                 { name: '/support', value: `List all users with <@&${process.env.SUPPORTROLE}>` },
                 { name: '/about', value: 'Some info on the bot'},
-                { name: '/blacklist remove', value: 'Remove a user from the blacklist' },
+                { name: '/blacklist-remove', value: 'Remove a user from the blacklist' },
             )
             .setColor('135f91');
 
