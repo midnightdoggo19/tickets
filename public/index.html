@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        button { padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Ticket Dashboard</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Channel ID</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Ticket Number</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="ticketTable">
+            <!-- Tickets will be populated here -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchTickets() {
+            const response = await fetch('/api/tickets');
+            const tickets = await response.json();
+            const tableBody = document.getElementById('ticketTable');
+            tableBody.innerHTML = '';
+
+            tickets.forEach(ticket => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${ticket.id}</td>
+                    <td>${ticket.user}</td>
+                    <td>${ticket.status}</td>
+                    <td>${ticket.issue}</td>
+                    <td>
+                        ${ticket.status === 'open' ? 
+                            `<button onclick="closeTicket('${ticket.id}')">Close</button>` 
+                            : 'Closed'}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        async function closeTicket(id) {
+            await fetch(`/api/tickets/${id}/close`, { method: 'POST' });
+            fetchTickets();
+        }
+
+        fetchTickets();
+    </script>
+</body>
+</html>

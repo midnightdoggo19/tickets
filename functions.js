@@ -18,21 +18,34 @@ const noPermission = process.env.NOPERMISSION || 'You don\'t have permission to 
 let tickets = {}; // for json
 let ticketNumber = 0 // default
 
+function isJSON(str) {
+    try {
+        JSON.parse(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 async function archiveChannel (channel) {
     if (!process.env.ARCHIVECATEGORY) {
         logger.warn('Archive category is not set in .env!');
         return 'Archive category is not set!';
     }
 
-    if (!tickets[channel.id]) { return 'Not a ticket!' };
+    let existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
 
-    const existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
-    if (existingChannels.hasOwnProperty(channel.id) && existingChannels[channel.id].hasOwnProperty('status') && existingChannels[channel.id]['status'] === 'archived') { return 'Channel already archived!'; }
+    // logger.debug(JSON.stringify(existingChannels));
+    // logger.debug(JSON.stringify(channel));
+    if (existingChannels[channel.id]['status'] === 'archived') { return 'Channel already archived!'; };
+
+    logger.debug(JSON.stringify(existingChannels))
+    if (!existingChannels[channel.id]) { return 'Not a ticket!' };
 
     await channel.setParent(process.env.ARCHIVECATEGORY);
     await channel.permissionOverwrites.set([
         {
-            id: channel.guild.id,
+            id: process.env.GUILDID,
             deny: [PermissionsBitField.Flags.ViewChannel]
         },
         {
@@ -45,9 +58,8 @@ async function archiveChannel (channel) {
         }
     ]);
 
-    tickets[channel.id].status = 'archived';
-    saveTickets();
-
+    existingChannels[channel.id].status = 'archived';
+    saveTickets(existingChannels);
     logger.info(`Ticket closed and archived: #${channel.name} (${channel.id})`);
     return `Ticket archived at <t:${Math.floor(Date.now() / 1000)}:F>`
 }
@@ -114,7 +126,7 @@ async function createTicket(guild, user, ticketNumber) {
         embed: Number(lastMessage.id)
     };
 
-    saveTickets();
+    saveTickets(tickets);
     logger.info(`Ticket #${ticketNumber} created by ${user.tag} in channel #${channel.name} (${channel.id})`);
 
     return channel;
@@ -132,8 +144,8 @@ const logger = winston.createLogger({
     ]
 });
 
-const saveTickets = () => {
-    fs.writeFileSync(channelFile, JSON.stringify(tickets, null, 2));
+const saveTickets = (save) => {
+    fs.writeFileSync(channelFile, JSON.stringify(save, null, 2));
 };
 
 module.exports = { archiveChannel, tickets, dataFile, logger, channelFile, ticketNumber, tickets, createTicket, noPermission }
