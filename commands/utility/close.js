@@ -9,7 +9,7 @@ module.exports = {
 	
 	async execute(interaction) {
 		await interaction.deferReply({flags: 64})
-		const a = await archiveChannel(interaction.channel);
+		const a = await archiveChannel(interaction.channel.id);
         return interaction.editReply({ content: a, flags: 64 });
 	},
 };

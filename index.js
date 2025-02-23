@@ -1,15 +1,18 @@
-const { Client,
+const {
+    Client,
     GatewayIntentBits,
     PermissionsBitField,
     REST,
     Collection,
     Events
 } = require('discord.js');
-
-const { logger, tickets, ticketNumber, channelFile, createTicket, archiveChannel, dataFile } = require('./functions')
+const express = require('express');
+const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile } = require('./functions')
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
+const favicon = require('serve-favicon');
+const app = express();
 
 const client = new Client({
     intents: [
@@ -25,6 +28,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 const activeVoiceChannels = new Map();
 client.commands = new Collection();
 
+const port = process.env.PORT || 3000;
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
@@ -34,6 +38,9 @@ if (!fs.existsSync(dataFile)) {
 }
 if (!fs.existsSync(channelFile)) {
     fs.writeFileSync(channelFile, JSON.stringify({}, null, 2), 'utf8');
+}
+if (!fs.existsSync('./logs/server.log')) {
+    fs.writeFileSync('./logs/server.log', '', 'utf8');
 }
 
 for (const folder of commandFolders) {
@@ -151,3 +158,56 @@ client.once('ready', () => {
 });
 
 client.login(process.env.TOKEN);
+
+// EXPRESS
+// fetch tickets
+const logFile = path.join(__dirname, './logs/server.log');
+app.use(favicon(path.join(__dirname, 'public', 'assets/favicon.ico')));
+
+function expressLog(message) {
+    const timestamp = new Date().toISOString();
+    const logEntry = `[${timestamp}] ${message}\n`;
+    console.log(logEntry.trim());
+    fs.appendFileSync(logFile, logEntry, 'utf8');
+}
+
+app.use((req, res, next) => {
+    expressLog(`Request: ${req.method} ${req.url}`);
+    next();
+});
+
+app.use(express.static('public'));
+app.set('trust proxy', 1);
+
+app.get('/api/tickets', (req, res) => {
+    fs.readFile(channelFile, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to read ticket data' });
+        }
+        const ticketsObj = JSON.parse(data);
+        const apiTickets = Object.keys(ticketsObj).map(channelID => ({
+            id: channelID,
+            user: ticketsObj[channelID].user,
+            status: ticketsObj[channelID].status,
+            issue: `Ticket #${ticketsObj[channelID].ticketNumber}`
+        }));
+        res.json(apiTickets);
+    });
+});
+
+// closing tickets
+app.post('/api/tickets/:id/close', async (req, res) => {
+    const ticketId = req.params.id;
+    const apiChannel = await client.channels.fetch(ticketId);
+    // console.log(apiChannel);
+    archiveChannel(apiChannel);
+    res.json({ success: true, message: `Ticket ${ticketId} closed` });
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.listen(port, () => {
+    expressLog(`Dashboard running at http://localhost:${port}`);
+});
