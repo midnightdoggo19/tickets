@@ -208,6 +208,8 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(port, () => {
-    expressLog(`Dashboard running at http://localhost:${port}`);
-});
+if (port != 0) { // disable web if port is zero
+    app.listen(port, () => {
+        expressLog(`Dashboard running at http://localhost:${port}`);
+    });
+}
