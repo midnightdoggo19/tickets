@@ -39,8 +39,8 @@ if (!fs.existsSync(dataFile)) {
 if (!fs.existsSync(channelFile)) {
     fs.writeFileSync(channelFile, JSON.stringify({}, null, 2), 'utf8');
 }
-if (!fs.existsSync('/logs/server.log')) {
-    fs.writeFileSync('/logs/server.log', '');
+if (!fs.existsSync('./logs/server.log')) {
+    fs.writeFileSync('./logs/server.log', '', 'utf8');
 }
 
 for (const folder of commandFolders) {
