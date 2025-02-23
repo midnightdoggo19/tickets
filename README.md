@@ -13,6 +13,7 @@ There's a web dashboard! NOTE: This is in beta and does not yet have authenticat
 /updateuser - Add or remove a user from the current ticket
 /help - shows this list
 /support - list all members with the support role
+/about - information about the bot
 ```
 ## NPM
 ```

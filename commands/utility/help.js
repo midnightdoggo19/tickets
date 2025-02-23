@@ -20,6 +20,7 @@ module.exports = {
                 { name: '/role', value: 'Gives a user the support role' },
                 { name: '/updateuser', value: 'Adds/removes a user from a ticket' },
                 { name: '/support', value: `List all users with <@&${process.env.SUPPORTROLE}>` },
+                { name: '/about', value: 'Some info on the bot'},
             )
             .setColor('135f91');
 

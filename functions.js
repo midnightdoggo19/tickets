@@ -20,13 +20,18 @@ const noPermission = process.env.NOPERMISSION || 'You don\'t have permission to 
 let tickets = {};
 let ticketNumber = 0 // default
 
-function isJSON(str) {
+function isJSON(str) { // maybe useful someday
     try {
         JSON.parse(str);
         return true;
     } catch (e) {
         return false;
     }
+}
+
+async function getTotalTickets () {
+    const data = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
+    return String(Object.keys(data).length);
 }
 
 async function archiveChannel (channel) {
@@ -151,4 +156,4 @@ const saveTickets = (save) => {
     fs.writeFileSync(channelFile, JSON.stringify(save, null, 2));
 };
 
-module.exports = { archiveChannel, tickets, dataFile, logger, channelFile, ticketNumber, tickets, createTicket, noPermission, usersFile }
+module.exports = { archiveChannel, tickets, dataFile, logger, channelFile, ticketNumber, tickets, createTicket, noPermission, usersFile, getTotalTickets, isJSON }
