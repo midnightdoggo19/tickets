@@ -4,4 +4,3 @@
 * About command
 * User notes
 * Reopening tickets
-* List support role-d users

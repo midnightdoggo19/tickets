@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+require('dotenv').config()
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -18,6 +19,7 @@ module.exports = {
                 { name: '/blacklist', value: 'Prevents a user from interacting with the bot' },
                 { name: '/role', value: 'Gives a user the support role' },
                 { name: '/updateuser', value: 'Adds/removes a user from a ticket' },
+                { name: '/support', value: `List all users with <@&${process.env.SUPPORTROLE}>` },
             )
             .setColor('135f91');
 

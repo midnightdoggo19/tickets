@@ -12,6 +12,7 @@ There's a web dashboard! NOTE: This is in beta and does not yet have authenticat
 /role - Give users the defined support role easily
 /updateuser - Add or remove a user from the current ticket
 /help - shows this list
+/support - list all members with the support role
 ```
 ## NPM
 ```
