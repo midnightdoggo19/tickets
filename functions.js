@@ -16,7 +16,8 @@ const usersFile = 'users.json';
 
 const noPermission = process.env.NOPERMISSION || 'You don\'t have permission to do that!';
 
-let tickets = fs.existsSync(channelFile) ? JSON.parse(fs.readFileSync(channelFile)) : [];
+// let tickets = fs.existsSync(channelFile) ? JSON.parse(fs.readFileSync(channelFile)) : [];
+let tickets = {};
 let ticketNumber = 0 // default
 
 function isJSON(str) {
@@ -146,6 +147,7 @@ const logger = winston.createLogger({
 });
 
 const saveTickets = (save) => {
+    logger.info(`Saving ${save}`)
     fs.writeFileSync(channelFile, JSON.stringify(save, null, 2));
 };
 
