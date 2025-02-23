@@ -11,6 +11,7 @@ There's a web dashboard! NOTE: This is in beta and does not yet have authenticat
 /blacklist - Forbid users from accessing the bot
 /role - Give users the defined support role easily
 /updateuser - Add or remove a user from the current ticket
+/help - shows this list
 ```
 ## NPM
 ```

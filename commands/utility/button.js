@@ -16,9 +16,9 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply()
 		const embed = new EmbedBuilder()
-		.setTitle('Support Ticket')
-		.setDescription('Click the button below to open a ticket.')
-		.setColor(0x00ff00);
+			.setTitle('Support Ticket')
+			.setDescription('Click the button below to open a ticket.')
+			.setColor(0x00ff00);
 
 		const createTicket = new ButtonBuilder()
 			.setCustomId('create_ticket')
