@@ -11,6 +11,7 @@ const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile } =
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
+const favicon = require('serve-favicon');
 const app = express();
 
 const client = new Client({
@@ -37,6 +38,9 @@ if (!fs.existsSync(dataFile)) {
 }
 if (!fs.existsSync(channelFile)) {
     fs.writeFileSync(channelFile, JSON.stringify({}, null, 2), 'utf8');
+}
+if (!fs.existsSync('/logs/server.log')) {
+    fs.writeFileSync('/logs/server.log', '');
 }
 
 for (const folder of commandFolders) {
@@ -157,6 +161,24 @@ client.login(process.env.TOKEN);
 
 // EXPRESS
 // fetch tickets
+const logFile = path.join(__dirname, './logs/server.log');
+app.use(favicon(path.join(__dirname, 'public', 'assets/favicon.ico')));
+
+function expressLog(message) {
+    const timestamp = new Date().toISOString();
+    const logEntry = `[${timestamp}] ${message}\n`;
+    console.log(logEntry.trim());
+    fs.appendFileSync(logFile, logEntry, 'utf8');
+}
+
+app.use((req, res, next) => {
+    expressLog(`Request: ${req.method} ${req.url}`);
+    next();
+});
+
+app.use(express.static('public'));
+app.set('trust proxy', 1);
+
 app.get('/api/tickets', (req, res) => {
     fs.readFile(channelFile, 'utf8', (err, data) => {
         if (err) {
@@ -187,5 +209,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-    logger.info(`Dashboard running at http://localhost:${port}`);
+    expressLog(`Dashboard running at http://localhost:${port}`);
 });

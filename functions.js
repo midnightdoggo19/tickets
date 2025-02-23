@@ -140,7 +140,7 @@ const logger = winston.createLogger({
     ),
     transports: [
         new winston.transports.Console(),
-        new winston.transports.File({ filename: process.env.LOGFILE || 'logger.log' }),
+        new winston.transports.File({ filename: `/logs/${process.env.LOGFILE || 'tickets.log'}` }),
     ]
 });
 
