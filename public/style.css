@@ -54,15 +54,33 @@ tbody tr:hover {
     background: #454554;
 }
 
+
+input {
+    width: 100;
+    padding: 10px;
+    margin: 10px auto;
+    border: none;
+    border-radius: 5px;
+    background: #3b3f51;
+    color: #ffffff;
+    display: block;
+    text-align: center;
+}
+  
 button {
-    background: #ff5252;
+    width: 100;
+    padding: 10px;
+    margin: 10px auto;
+    background-color: #6272a4;
     color: white;
     border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
+    font-size: 16px;
+    display: block;
 }
 
+
 button:hover {
-    background: #ff7777;
+    background-color: #7289da;
 }
