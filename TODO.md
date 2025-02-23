@@ -1,4 +1,3 @@
-* Web interface
 * Modmail(?)
 * Better blacklisting commands
 * Ticket claiming

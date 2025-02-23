@@ -65,6 +65,7 @@ NOPERMISSION = 'You don\'t have permission to do that!' # When there's no permis
 
 # Web
 PORT = 3000 # set to 0 if you want to disable the dashboard
+SECRET = 'openssl rand -hex 32' # run to generate secret
 ```
 
 The bot is now ready to run:
