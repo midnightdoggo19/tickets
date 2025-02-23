@@ -223,13 +223,22 @@ let users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile)) : 
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     if (users[username]) return res.status(400).send('User already exists');
-
+  
     const hashedPassword = await bcrypt.hash(password, 10);
     users[username] = { password: hashedPassword };
-    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-
-    res.send('User registered successfully');
-});
+  
+    // Debugging log
+    console.log('Users before saving:', users);
+  
+    try {
+        fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+        console.log('Users saved successfully.');
+        res.send('User registered successfully');
+    } catch (err) {
+        console.error('Error saving users:', err);
+        res.status(500).send('Error saving user');
+    }
+  });
 
 // login
 app.post('/login', async (req, res) => {
