@@ -3,14 +3,14 @@
 There's a web dashboard! NOTE: This is in beta and does not yet have authentication in place! You can disable it by setting the port to zero.
 ## Discord
 ```
-/close - close the current ticket
-/button - create a button to make tickets with
-/top - Go to the top of the ticket
-/ping - Check if the bot is online
-/open - Open a new ticket
-/blacklist - Forbid users from accessing the bot
-/role - Give users the defined support role easily
-/updateuser - Add or remove a user from the current ticket
+/close - Closes the current ticket
+/button - Create a button to make tickets with
+/top - Lets you go to the top of the ticket
+/ping - Checks if the bot is online
+/open - Opens a new ticket
+/blacklist - Forbids users from accessing the bot
+/role - Gives users the defined support role easily
+/updateuser - Adds or removes a user from the current ticket
 ```
 ## NPM
 ```
