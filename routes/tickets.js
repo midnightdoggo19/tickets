@@ -1,17 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
+const rateLimit = require('express-rate-limit');
+const { ticketsFile } = require('../functions');
 
-const ticketsFile = 'channels.json';
 let tickets = fs.existsSync(ticketsFile) ? JSON.parse(fs.readFileSync(ticketsFile)) : [];
 
-// List tickets (requires authentication)
-router.get('/', (req, res) => {
+// list tickets (requires authentication)
+router.get('/', limiter, (req, res) => {
   res.json(tickets);
 });
 
-// Create ticket (requires authentication)
-router.post('/', (req, res) => {
+// max of 10 requests per minute
+const registerLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, 
+    max: 10
+});
+
+// create ticket (requires authentication)
+router.post('/', limiter, (req, res) => {
   const { title, description } = req.body;
   const newTicket = { id: Date.now(), title, description, user: req.session.user };
   tickets.push(newTicket);

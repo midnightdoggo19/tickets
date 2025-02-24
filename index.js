@@ -16,6 +16,7 @@ const favicon = require('serve-favicon');
 const app = express();
 const session = require('express-session');
 const bcrypt = require('bcrypt');
+const lusca = require('lusca');
 
 const client = new Client({
     intents: [
@@ -168,12 +169,29 @@ client.login(process.env.TOKEN);
 app.use(favicon(path.join(__dirname, 'public', 'assets/favicon.ico')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(lusca.csrf());
 
 app.use(session({
-    secret: process.env.SECRET, // Change this to a strong, unique secret
+    secret: process.env.SECRET,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        secure: true,
+        httpOnly: true
+    }
 }));
+
+// max of 100 requests per 15 minutes
+const rootLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100
+});
+
+// max of 10 requests per minute
+const registerLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, 
+    max: 10
+});
 
 app.use((req, res, next) => {
     logger.info(`Request: ${req.method} ${req.url}`);
@@ -183,7 +201,7 @@ app.use((req, res, next) => {
 app.use(express.static('public'));
 app.set('trust proxy', 1);
 
-app.get('/api/tickets', (req, res) => {
+app.get('/api/tickets', rootLimiter, (req, res) => {
     fs.readFile(channelFile, 'utf8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Failed to read ticket data' });
@@ -207,17 +225,11 @@ app.post('/api/tickets/:id/close', async (req, res) => {
     res.json({ success: true, message: `Ticket ${ticketId} closed` });
 });
 
-app.get('/', (req, res) => {
+app.get('/', rootLimiter, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 let users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile)) : {};
-
-// set up rate limiter: maximum of 5 requests per minute
-const registerLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minute
-    max: 5 // limit each IP to 5 requests per windowMs
-});
 
 // registration
 app.post('/register', registerLimiter, async (req, res) => {
