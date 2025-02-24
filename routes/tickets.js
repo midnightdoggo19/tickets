@@ -6,19 +6,19 @@ const { ticketsFile } = require('../functions');
 
 let tickets = fs.existsSync(ticketsFile) ? JSON.parse(fs.readFileSync(ticketsFile)) : [];
 
+// max of 10 requests per minute
+const registerLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, 
+  max: 10
+});
+
 // list tickets (requires authentication)
-router.get('/', limiter, (req, res) => {
+router.get('/', registerLimiter, (req, res) => {
   res.json(tickets);
 });
 
-// max of 10 requests per minute
-const registerLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, 
-    max: 10
-});
-
 // create ticket (requires authentication)
-router.post('/', limiter, (req, res) => {
+router.post('/', registerLimiter, (req, res) => {
   const { title, description } = req.body;
   const newTicket = { id: Date.now(), title, description, user: req.session.user };
   tickets.push(newTicket);
