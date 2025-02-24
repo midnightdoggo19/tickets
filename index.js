@@ -73,8 +73,8 @@ client.on('interactionCreate', async (interaction) => {
     let ticketNumber = userTickets.length;
 
     if (interaction.customId === 'create_ticket') {
-        const channel = await createTicket(guild, user, ticketNumber)
-        interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
+        const channel = await createTicket(guild, user, ticketNumber);
+        await interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
     } else if (interaction.customId === 'close_ticket') {
         let a = await archiveChannel(interaction.channel)
         return interaction.editReply({ content: a, flags: 64 });

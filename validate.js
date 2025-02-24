@@ -5,7 +5,7 @@ require('dotenv').config();
 if (!process.env.TOKEN) {
     logger.error('No token found!');
 }
-if (!process.env.CLIENT_ID || isNaN(process.env.CLIENT_ID)) {
+if (!process.env.CLIENTID || isNaN(process.env.CLIENTID)) {
     logger.error('No valid client ID found!');
 }
 if (!process.env.TICKETCATEGORY || isNaN(process.env.TICKETCATEGORY)) {

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const generator = require('generate-password');
 const { logger, noPermission } = require('../../functions');
 require('dotenv').config();

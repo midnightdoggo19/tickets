@@ -5,7 +5,7 @@ const {
     PermissionsBitField,
     ButtonBuilder,
     ButtonStyle,
-    ActionRowBuilder,
+    ActionRowBuilder
 } = require('discord.js');
 
 const fs = require('node:fs');
@@ -82,7 +82,7 @@ async function archiveChannel (channel) {
             allow: [PermissionsBitField.Flags.ViewChannel]
         },
         {
-            id: process.env.CLIENT_ID,
+            id: process.env.CLIENTID,
             allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.AddReactions, PermissionsBitField.Flags.SendMessages]
         }
     ]);
@@ -94,14 +94,10 @@ async function archiveChannel (channel) {
 }
 
 async function createTicket(guild, user, ticketNumber) {
-    if (!process.env.TICKETCATEGORY) {
-        await interaction.reply({ content: 'Ticket category is not set!', flags: 64 });
-    }
-
     const channel = await guild.channels.create({
         name: `ticket-${user.username}-${ticketNumber}`,
-        type: 0, // 0 = text channel
-        parent: process.env.TICKETCATEGORY,
+        type: 0, // text channel
+        parent: String(process.env.TICKETCATEGORY),
         permissionOverwrites: [
             {
                 id: guild.id,
@@ -116,7 +112,7 @@ async function createTicket(guild, user, ticketNumber) {
                 allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
             },
             {
-                id: process.env.CLIENT_ID,
+                id: process.env.CLIENTID,
                 allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
             }
         ]
