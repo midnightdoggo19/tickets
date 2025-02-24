@@ -4,7 +4,8 @@
     "test": "jest",
     "start": "node index.js",
     "clear": "node clearcategory.js",
-    "register": "node deploy.js"
+    "register": "node deploy.js",
+    "validate": "node validate.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
