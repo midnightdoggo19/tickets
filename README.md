@@ -3,26 +3,25 @@
 There's a web dashboard! NOTE: This is in beta and does not yet have authentication in place! You can disable it by setting the port to zero.
 ## Discord
 ```
-/close - close the current ticket
-/button - create a button to make tickets with
-/top - Go to the top of the ticket
-/ping - Check if the bot is online
-/open - Open a new ticket
-/blacklist-add - Forbid users from accessing the bot
-/role - Give users the defined support role easily
-/updateuser - Add or remove a user from the current ticket
-/help - shows this list
-/support - list all members with the support role
-/about - information about the bot
-/blacklist-remove - Remove a user from the blacklist
-/blacklist-list - List blacklisted users
+/close - Closes the current ticket
+/button - Creates a button to make tickets with
+/top - Goes to the top of the ticket
+/ping - Checks if the bot is online
+/open - Opens a new ticket
+/blacklist-add - Forbids users from accessing the bot
+/role - Gives users the defined support role easily
+/updateuser - Adds or removes a user from the current ticket
+/support - Lists all members with the support role
+/about - Provides information about the bot
+/blacklist-remove - Removes a user from the blacklist
+/blacklist-list - Lists blacklisted users
 ```
 ## NPM
 ```
-npm start - run the bot
-npm test - make sure package*.json is valid
-npm run clear - remove all old tickets from the archive category
-npm run register - register slash commands with discord
+npm start - Starts the bot
+npm test - Makes sure package*.json is valid
+npm run clear - Removes all archived tickets
+npm run register - Registers slash commands with Discord
 npm run validate - Validates .env
 ```
 
@@ -38,8 +37,8 @@ cd tickets
 ```
 Install dependencies:
 ```
-npm run register
 npm i
+npm run register
 ```
 Fill the information in `.example.env` and rename it to `.env`:
 ```
