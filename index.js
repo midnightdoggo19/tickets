@@ -108,19 +108,20 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
-    if (interaction.user.id in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) { interaction.deleteReply(); return; }
+    if (interaction.user.id in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) { return; }
+    if (interaction.guild.id != process.env.GUILDID) { return; }
 
 	const command = interaction.client.commands.get(interaction.commandName);
 
 	if (!command) {
-		console.error(`No command matching ${interaction.commandName} was found.`);
+		logger.error(`No command matching ${interaction.commandName} was found.`);
 		return;
 	}
 
 	try {
 		await command.execute(interaction);
 	} catch (error) {
-		console.error(error);
+		logger.error(error);
 		if (interaction.replied || interaction.deferred) {
 			await interaction.followUp({ content: 'There was an error while executing this command!', flags: 64 });
 		} else {
