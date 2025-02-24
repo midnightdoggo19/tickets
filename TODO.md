@@ -9,3 +9,4 @@
 * Data directory
 * Deal with [this](https://github.com/midnightdoggo19/tickets/security/code-scanning/11)
 * Health API endpoint
+* Empty directory placeholders
