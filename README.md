@@ -14,10 +14,10 @@ There's a web dashboard! NOTE: This is in beta and does not yet have authenticat
 ```
 ## NPM
 ```
-npm start - run the bot
-npm test - make sure package*.json is valid
-npm run clear - remove all old tickets from the archive category
-npm run register - register slash commands with discord
+npm start - Runs the bot
+npm test - Makes sure package*.json is valid
+npm run clear - Removes all archived tickets
+npm run register - Registers slash commands with Discord
 ```
 
 # Installation
@@ -32,8 +32,8 @@ cd tickets
 ```
 Install dependencies:
 ```
-npm run register
 npm i
+npm run register
 ```
 Fill the information in `.example.env` and rename it to `.env`:
 ```
