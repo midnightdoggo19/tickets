@@ -27,4 +27,4 @@ if (process.env.PORT && !process.env.SECRET) {
     logger.error('Set a secret!')
 }
 
-logger.info('If this file outputted nothing else, you\'re probable good to go!');
+logger.info('If this file outputted nothing else, you\'re probably good to go!');
