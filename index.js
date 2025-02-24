@@ -263,7 +263,7 @@ app.get('/tickets', requireAuth, (req, res) => {
 });
 
 if (port != 0) { // disable web if port is zero
-    app.listen(port, () => {
-        expressLog(`Dashboard running at http://localhost:${port}`);
+    app.listen(port, process.env.IP || '0.0.0.0', () => {
+        expressLog(`Dashboard running at http://${process.env.IP || '0.0.0.0'}:${port}`);
     });
 }
