@@ -164,7 +164,6 @@ client.login(process.env.TOKEN);
 
 // EXPRESS
 // fetch tickets
-const logFile = path.join(__dirname, './logs/server.log');
 app.use(favicon(path.join(__dirname, 'public', 'assets/favicon.ico')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -175,15 +174,8 @@ app.use(session({
     saveUninitialized: true
 }));
 
-function expressLog(message) {
-    const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] ${message}\n`;
-    console.log(logEntry.trim());
-    fs.appendFileSync(logFile, logEntry, 'utf8');
-}
-
 app.use((req, res, next) => {
-    expressLog(`Request: ${req.method} ${req.url}`);
+    logger.info(`Request: ${req.method} ${req.url}`);
     next();
 });
 
@@ -228,11 +220,11 @@ app.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     users[username] = { password: hashedPassword };
   
-    console.log('Users before saving:', users);
+    logger.info('Users before saving:', users);
   
     try {
         fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-        console.log('Users saved successfully.');
+        logger.info('Users saved successfully.');
         res.send('User registered successfully');
     } catch (err) {
         console.error('Error saving users:', err);
@@ -263,7 +255,7 @@ app.get('/tickets', requireAuth, (req, res) => {
 });
 
 if (port != 0) { // disable web if port is zero
-    app.listen(port, process.env.IP || '0.0.0.0', () => {
-        expressLog(`Dashboard running at http://${process.env.IP || '0.0.0.0'}:${port}`);
+    app.listen(port, process.env.IP || 'localhost', () => {
+        logger.info(`Dashboard running at http://${process.env.IP || 'localhost'}:${port}`);
     });
 }

@@ -23,6 +23,7 @@ module.exports = {
                 { name: '/about', value: 'Some info on the bot'},
                 { name: '/blacklist-remove', value: 'Remove a user from the blacklist' },
                 { name: '/blacklist-list', value: 'List blacklisted users' },
+                { name: '/register', value: 'Registers a new account on the dashboard'},
             )
             .setColor('135f91');
 

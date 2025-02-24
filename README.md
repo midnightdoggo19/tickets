@@ -15,6 +15,7 @@ There's a web dashboard! NOTE: This is in beta and does not yet have authenticat
 /about - Provides information about the bot
 /blacklist-remove - Removes a user from the blacklist
 /blacklist-list - Lists blacklisted users
+/register - Creates a new dashboard account
 ```
 ## NPM
 ```
