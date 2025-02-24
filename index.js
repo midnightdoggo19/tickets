@@ -7,6 +7,7 @@ const {
     Events
 } = require('discord.js');
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile, usersFile } = require('./functions')
 require('dotenv').config();
 const fs = require('node:fs');
@@ -212,8 +213,14 @@ app.get('/', (req, res) => {
 
 let users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile)) : {};
 
+// set up rate limiter: maximum of 5 requests per minute
+const registerLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 5 // limit each IP to 5 requests per windowMs
+});
+
 // registration
-app.post('/register', async (req, res) => {
+app.post('/register', registerLimiter, async (req, res) => {
     const { username, password } = req.body;
     if (users[username]) return res.status(400).send('User already exists');
   
