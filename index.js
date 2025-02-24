@@ -169,7 +169,7 @@ client.login(process.env.TOKEN);
 app.use(favicon(path.join(__dirname, 'public', 'assets/favicon.ico')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(lusca.csrf());
+// app.use(lusca.csrf());
 
 app.use(session({
     secret: process.env.SECRET,
