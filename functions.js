@@ -52,6 +52,10 @@ async function getTotalTickets () {
     return String(Object.keys(data).length);
 }
 
+async function webServerEnabled () {
+    if (process.env.PORT == 0 || !process.env.PORT) { return false; } else { return true; }
+}
+
 async function archiveChannel (channel) {
     if (!process.env.ARCHIVECATEGORY) {
         logger.warn('Archive category is not set in .env!');
@@ -189,5 +193,6 @@ module.exports = {
     isJSON,
     addBlacklist,
     getBlacklisted,
-    removeBlacklist
+    removeBlacklist,
+    webServerEnabled
 }

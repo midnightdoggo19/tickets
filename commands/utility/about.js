@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { getTotalTickets, logger } = require('../../functions');
-require('dotenv').config()
+const { getTotalTickets, webServerEnabled } = require('../../functions');
+require('dotenv').config();
+let serverStatus;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -12,6 +13,12 @@ module.exports = {
 
         const total = await getTotalTickets();
 
+        if (await webServerEnabled() === true) {
+            serverStatus = 'Online';
+        } else {
+            serverStatus = 'Offline';
+        }
+
         const about = new EmbedBuilder()
             .setColor(0x0099FF)
             .setTitle('Support Tickets')
@@ -21,6 +28,7 @@ module.exports = {
             .addFields(
                 { name: 'Support Role', value: `<@&${process.env.SUPPORTROLE}>`},
                 { name: 'Total Tickets', value: total || 'Unknown'},
+                { name: 'Webserver Status', value: serverStatus},
             )
             .setTimestamp();
 
