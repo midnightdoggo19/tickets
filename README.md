@@ -23,6 +23,7 @@ npm start - run the bot
 npm test - make sure package*.json is valid
 npm run clear - remove all old tickets from the archive category
 npm run register - register slash commands with discord
+npm run validate - Validates .env
 ```
 
 # Installation
