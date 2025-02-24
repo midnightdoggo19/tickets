@@ -1,29 +1,24 @@
-const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { dataFile, noPermission } = require('../../functions');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { dataFile, getBlacklisted } = require('../../functions');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('blacklist-list')
-		.setDescription('Add a user to the blacklist')
+		.setDescription('List blacklisted user IDs')
         .setContexts(0),
     
 	async execute(interaction) {
+        // maybe make permission-locked?
 		await interaction.deferReply({ flags: 64 });
-        if (!interaction.member.roles.cache.has(process.env.SUPPORTROLE) || !interaction.member.permissions.has([ // check if user can do that
-            PermissionsBitField.Flags.ManageRoles,
-            PermissionsBitField.Flags.Administrator,
-            PermissionsBitField.Flags.ModerateMembers
-        ])) {
-            await interaction.editReply({content: noPermission, flags: 64})
-        };
 
-		const json = require(dataFile);
-        const user = interaction.options.getUser('user');
+        const list = await getBlacklisted();
 
-        json[user.id] = 'blacklisted';
-        
-        fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
+        const blacklisted = new EmbedBuilder()
+            .setTitle('Blacklisted Users')
+            .setDescription(list)
+            .setColor(0x00AE86) // Customize color
+            .setTimestamp();
 
-        interaction.editReply({ content: `Blacklisted <@${user.id}>`, flags: 64 });
+        await interaction.editReply({ embeds: [blacklisted], flags: 64 });
 	},
 };

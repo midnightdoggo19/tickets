@@ -29,6 +29,24 @@ function isJSON(str) { // maybe useful someday
     }
 }
 
+async function removeBlacklist (userID) {
+    const json = require(dataFile);
+    delete json[userID];
+    fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
+}
+
+async function addBlacklist (userID) {
+    const json = require(dataFile);
+    json[userID] = 'blacklisted';
+    fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
+}
+
+async function getBlacklisted (asUsers) {
+    // logger.debug('Getting blacklist...');
+    const data = await JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+    return Object.keys(data).join('\n');
+}
+
 async function getTotalTickets () {
     const data = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
     return String(Object.keys(data).length);
@@ -156,4 +174,20 @@ const saveTickets = (save) => {
     fs.writeFileSync(channelFile, JSON.stringify(save, null, 2));
 };
 
-module.exports = { archiveChannel, tickets, dataFile, logger, channelFile, ticketNumber, tickets, createTicket, noPermission, usersFile, getTotalTickets, isJSON }
+module.exports = {
+    archiveChannel,
+    tickets,
+    dataFile,
+    logger,
+    channelFile,
+    ticketNumber,
+    tickets,
+    createTicket,
+    noPermission,
+    usersFile,
+    getTotalTickets,
+    isJSON,
+    addBlacklist,
+    getBlacklisted,
+    removeBlacklist
+}

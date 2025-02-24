@@ -1,12 +1,12 @@
 const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { dataFile, noPermission } = require('../../functions');
+const { noPermission, removeBlacklist } = require('../../functions');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('blacklist-remove')
 		.setDescription('Remove a user from the blacklist')
         .addUserOption(option =>
-            option.setName('name')
+            option.setName('user')
                 .setDescription('User to remove')
                 .setRequired(true)
         )
@@ -21,13 +21,9 @@ module.exports = {
             await interaction.editReply({content: noPermission, flags: 64})
         };
 
-		const json = require(dataFile);
         const user = interaction.options.getUser('user');
+        await removeBlacklist(user.id)
 
-        delete json[user.id];
-        
-        fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
-
-        interaction.editReply({ content: `Blacklisted <@${user.id}>`, flags: 64 });
+        await interaction.editReply({ content: `Blacklisted <@${user.id}>`, flags: 64 });
 	},
 };

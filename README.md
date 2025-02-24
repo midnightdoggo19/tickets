@@ -15,6 +15,7 @@ There's a web dashboard! NOTE: This is in beta and does not yet have authenticat
 /support - list all members with the support role
 /about - information about the bot
 /blacklist-remove - Remove a user from the blacklist
+/blacklist-list - List blacklisted users
 ```
 ## NPM
 ```
