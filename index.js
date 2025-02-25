@@ -192,7 +192,7 @@ const rootLimiter = rateLimit({
 
 // max of 10 requests per minute
 const registerLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, 
+    windowMs: 1 * 60 * 1000,  // a minute
     max: 10
 });
 
@@ -203,6 +203,15 @@ app.use((req, res, next) => {
 
 app.use(express.static('public'));
 app.set('trust proxy', 1);
+
+app.get('/health', rootLimiter, (req, res) => {
+    res.json({
+        status: 'ok',
+        uptime: process.uptime(),
+        memoryUsage: process.memoryUsage(),
+        nodeVersion: process.version
+    });
+});  
 
 app.get('/api/tickets', rootLimiter, (req, res) => {
     fs.readFile(channelFile, 'utf8', (err, data) => {
