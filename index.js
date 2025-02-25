@@ -5,7 +5,8 @@ const {
     REST,
     Collection,
     Events,
-    PresenceUpdateStatus
+    PresenceUpdateStatus,
+    ActivityType
 } = require('discord.js');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
@@ -28,8 +29,6 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates
     ]
 });
-
-client.user.setPresence({ activities: [{ name: process.env.STATUS || 'Waiting for tickets' }], status: PresenceUpdateStatus.Idle });
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 const activeVoiceChannels = new Map();
@@ -163,6 +162,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
 
 client.once('ready', () => {
     logger.info(`Logged in as ${client.user.tag}`);
+    client.user.setActivity(process.env.STATUS || 'for tickets', { type: ActivityType.Watching });
 });
 
 client.login(process.env.TOKEN);
