@@ -41,7 +41,7 @@ Install dependencies:
 npm i
 npm run register
 ```
-Fill the information in `.example.env` and rename it to `.env`:
+Copy the following into a file and name it `.env`:
 ```
 # From Discord Developer Page of your bot
 TOKEN='your bot token'
