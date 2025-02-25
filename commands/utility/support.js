@@ -5,7 +5,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('support')
 		.setDescription('List all users with the support role')
-		.setContexts(0, 1),
+		.setContexts(0),
 	async execute(interaction) {
 		await interaction.deferReply({ flags: 64 });
 
