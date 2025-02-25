@@ -14,6 +14,6 @@ module.exports = {
         const ticketNumber = userTickets.length;
 
         const channel = await createTicket(interaction.guild, interaction.user, ticketNumber)
-        interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
+        await interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
 	},
 };

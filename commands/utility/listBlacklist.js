@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { dataFile, getBlacklisted } = require('../../functions');
+const { dataFile, getJSON } = require('../../functions');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -11,7 +11,7 @@ module.exports = {
         // maybe make permission-locked?
 		await interaction.deferReply({ flags: 64 });
 
-        const list = await getBlacklisted();
+        const list = await getJSON();
 
         const blacklisted = new EmbedBuilder()
             .setTitle('Blacklisted Users')

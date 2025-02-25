@@ -41,9 +41,9 @@ async function addBlacklist (userID) {
     fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
 }
 
-async function getBlacklisted (asUsers) {
+async function getJSON (file) {
     // logger.debug('Getting blacklist...');
-    const data = await JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+    const data = await JSON.parse(fs.readFileSync(file, 'utf8'));
     return Object.keys(data).join('\n');
 }
 
@@ -188,7 +188,7 @@ module.exports = {
     getTotalTickets,
     isJSON,
     addBlacklist,
-    getBlacklisted,
+    getJSON,
     removeBlacklist,
     webServerEnabled
 }
