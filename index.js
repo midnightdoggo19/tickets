@@ -204,7 +204,7 @@ app.use((req, res, next) => {
 app.use(express.static('public'));
 app.set('trust proxy', 1);
 
-app.get('/health', rootLimiter, (req, res) => {
+app.get('/api/health', rootLimiter, (req, res) => {
     res.json({
         status: 'ok',
         uptime: process.uptime(),
