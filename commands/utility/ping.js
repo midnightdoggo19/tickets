@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { logger } = require('../../functions');
 require('dotenv').config();
 
 module.exports = {
@@ -9,11 +10,14 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply({ flags: 64 });
 
-		const status = await fetch(`http://${process.env.IP}:${process.env.PORT}/health`);
-
 		const statusEmbed = new EmbedBuilder()
 			.setTitle('Bot Status')
-			.setDescription(status.join('\n'))
+			.addFields(
+                { name: 'status', value: 'ok' },
+                { name: 'uptime', value: String(process.uptime()) },
+                { name: 'memoryUsage', value: JSON.stringify(process.memoryUsage()) },
+                { name: 'nodeVersion', value: String(process.version) },
+			)
 			.setColor(0x00AE86)
 			.setTimestamp();
 
