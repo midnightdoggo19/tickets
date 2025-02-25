@@ -53,8 +53,9 @@ SUPPORT_ROLE_ID = 'role ID' # Role ID allowed to access tickets
 ARCHIVECATEGORY = 'another category ID' # Where tickets go after being closed
 GUILDID = 'guild ID'
 
-# Optional configuration
-## Logging (optional values - defaults will otherwise be used)
+# Everything below here is optional
+
+# Logging (optional values - defaults will otherwise be used)
 LOGLEVEL='info' # Can be updated as required
 
 # Emojis - optional
@@ -68,6 +69,7 @@ EMOJI_VC = '🎙️' # on VC button
 OPENTICKETTITLE = 'Ticket Created' # embed title
 OPENTICKETBODY = 'A member of the support team will be with you soon.' # embed body
 NOPERMISSION = 'You don\'t have permission to do that!' # When there's no permission
+STATUS = 'Waiting for tickets'
 
 # Web
 PORT = 3000 # set to 0 if you want to disable the dashboard

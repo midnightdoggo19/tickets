@@ -4,7 +4,8 @@ const {
     PermissionsBitField,
     REST,
     Collection,
-    Events
+    Events,
+    PresenceUpdateStatus
 } = require('discord.js');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
@@ -27,6 +28,8 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates
     ]
 });
+
+client.user.setPresence({ activities: [{ name: process.env.STATUS || 'Waiting for tickets' }], status: PresenceUpdateStatus.Idle });
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 const activeVoiceChannels = new Map();
