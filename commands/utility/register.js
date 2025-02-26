@@ -34,7 +34,7 @@ module.exports = {
         )
         .setTimestamp();
     
-        const res = await fetch(`http://${process.env.IP}:${process.env.PORT}/register`, {
+        const res = await fetch(`http://${process.env.IP}:${process.env.PORT}/api/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

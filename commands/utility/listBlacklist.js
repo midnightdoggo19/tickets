@@ -11,7 +11,7 @@ module.exports = {
         // maybe make permission-locked?
 		await interaction.deferReply({ flags: 64 });
 
-        const list = await getJSON();
+        const list = await getJSON(dataFile);
 
         const blacklisted = new EmbedBuilder()
             .setTitle('Blacklisted Users')

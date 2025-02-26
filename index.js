@@ -10,7 +10,7 @@ const {
 } = require('discord.js');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile, usersFile } = require('./functions')
+const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile, usersFile, getJSON, addBlacklist } = require('./functions')
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
@@ -18,7 +18,7 @@ const favicon = require('serve-favicon');
 const app = express();
 const session = require('express-session');
 const bcrypt = require('bcrypt');
-const lusca = require('lusca');
+const listBlacklist = require('./commands/utility/listBlacklist');
 
 const client = new Client({
     intents: [
@@ -173,7 +173,6 @@ client.login(process.env.TOKEN);
 app.use(favicon(path.join(__dirname, 'public', 'assets/favicon.ico')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(lusca.csrf());
 
 app.use(session({
     secret: process.env.SECRET,
@@ -197,6 +196,11 @@ const registerLimiter = rateLimit({
     max: 10
 });
 
+function requireAuth(req, res, next) {
+    if (!req.session.user) return res.status(401).send('Unauthorized');
+    next();
+}
+
 app.use((req, res, next) => {
     logger.info(`Request: ${req.method} ${req.url}`);
     next();
@@ -205,16 +209,38 @@ app.use((req, res, next) => {
 app.use(express.static('public'));
 app.set('trust proxy', 1);
 
-app.get('/api/health', rootLimiter, (req, res) => {
+// html syntax because why not
+// <info>
+
+app.get('/api/info/health', rootLimiter, (req, res) => {
     res.json({
         status: 'ok',
         uptime: process.uptime(),
         memoryUsage: process.memoryUsage(),
-        nodeVersion: process.version
+        nodeVersion: process.version,
+        logLevel: process.env.LOGLEVEL
     });
 });  
 
-app.get('/api/tickets', rootLimiter, (req, res) => {
+app.get('/api/info/server', rootLimiter, (req, res) => {
+    res.json({
+        port: process.env.PORT || 'No port set!',
+        ip: process.env.IP || 'No IP set!'
+    });
+})
+
+app.get('/api/info/bot', rootLimiter, (req, res) => {
+    res.json({
+        username: client.username,
+        supportRole: process.env.SUPPORTROLE,
+        status: process.env.STATUS
+    });
+});
+
+// </info>
+// <tickets>
+
+app.get('/api/tickets', requireAuth, rootLimiter, (req, res) => {
     fs.readFile(channelFile, 'utf8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Failed to read ticket data' });
@@ -224,17 +250,17 @@ app.get('/api/tickets', rootLimiter, (req, res) => {
             id: channelID,
             user: ticketsObj[channelID].user,
             status: ticketsObj[channelID].status,
-            issue: `Ticket #${ticketsObj[channelID].ticketNumber}`
+            issue: ticketsObj[channelID].ticketNumber
         }));
         res.json(apiTickets);
     });
 });
 
 // closing tickets
-app.post('/api/tickets/:id/close', async (req, res) => {
+app.post('/api/tickets/:id/close', requireAuth, async (req, res) => {
     const ticketId = req.params.id;
     const apiChannel = await client.channels.fetch(ticketId);
-    archiveChannel(apiChannel);
+    await archiveChannel(apiChannel);
     res.json({ success: true, message: `Ticket ${ticketId} closed` });
 });
 
@@ -245,7 +271,7 @@ app.get('/', rootLimiter, (req, res) => {
 let users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile)) : {};
 
 // registration
-app.post('/register', registerLimiter, async (req, res) => {
+app.post('/api/register', registerLimiter, async (req, res) => {
     const { username, password } = req.body;
     if (users[username]) return res.status(400).send('User already exists');
   
@@ -255,7 +281,7 @@ app.post('/register', registerLimiter, async (req, res) => {
     logger.info('Users before saving:', users);
   
     try {
-        fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+        await fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
         logger.info('Users saved successfully.');
         res.send('User registered successfully');
     } catch (err) {
@@ -264,8 +290,11 @@ app.post('/register', registerLimiter, async (req, res) => {
     }
   });
 
+// </tickets>
+// <dashboard-auth>
+
 // login
-app.post('/login', async (req, res) => {
+app.post('/api/login', rootLimiter, async (req, res) => {
     const { username, password } = req.body;
     const user = users[username];
 
@@ -277,14 +306,24 @@ app.post('/login', async (req, res) => {
     res.send('Login successful');
 });
 
-function requireAuth(req, res, next) {
-    if (!req.session.user) return res.status(401).send('Unauthorized');
-    next();
-}
+// </dashboard-auth>
+// <blacklist>
 
-app.get('/tickets', requireAuth, (req, res) => {
-    res.json(tickets);
+app.get('/api/blacklist/list', rootLimiter, async (req, res) => {
+    res.json(getJSON(dataFile));
 });
+
+app.post('/api/blacklist/add', rootLimiter, requireAuth, async (req, res) => {
+    const { id } = req.body;
+    await addBlacklist(id);
+    res.send(`Added ${id} to blacklist`);
+});
+
+// </blacklist>
+
+// app.get('/api/tickets', requireAuth, (req, res) => {
+//     res.json(tickets);
+// });
 
 if (port != 0) { // disable web if port is zero
     app.listen(port, process.env.IP || 'localhost', () => {
