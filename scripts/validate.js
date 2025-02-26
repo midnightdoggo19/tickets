@@ -1,4 +1,4 @@
-const { logger } = require('./functions');
+const { logger } = require('../functions');
 require('dotenv').config();
 
 // required stuff

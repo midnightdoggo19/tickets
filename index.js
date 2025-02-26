@@ -10,7 +10,7 @@ const {
 } = require('discord.js');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const { logger, tickets, channelFile, createTicket, archiveChannel, blacklist, usersFile, getJSON, addBlacklist, removeBlacklist } = require('./functions')
+const { logger, tickets, channelFile, createTicket, archiveChannel, blacklist, usersFile, getJSON, addBlacklist, removeBlacklist } = require('./functions');
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');

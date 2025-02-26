@@ -3,9 +3,9 @@
   "scripts": {
     "test": "jest",
     "start": "node index.js",
-    "clear": "node clearcategory.js",
-    "register": "node deploy.js",
-    "validate": "node validate.js"
+    "clear": "node scrips/clearcategory.js",
+    "register": "node scripts/deploy.js",
+    "validate": "node scripts/validate.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
