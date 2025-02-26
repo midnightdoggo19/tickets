@@ -1,6 +1,6 @@
 # Default data files
 channels.json
-data.json
+blacklist.json
 users.json
 
 # Logs

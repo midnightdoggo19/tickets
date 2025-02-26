@@ -11,8 +11,8 @@ const {
 const fs = require('node:fs');
 
 const channelFile = './channels.json'
-const dataFile = './data.json';
-const usersFile = 'users.json';
+const blacklist = './blacklist.json';
+const usersFile = './users.json';
 
 const noPermission = process.env.NOPERMISSION || 'You don\'t have permission to do that!';
 
@@ -30,15 +30,15 @@ function isJSON(str) { // maybe useful someday
 }
 
 async function removeBlacklist (userID) {
-    const json = require(dataFile);
+    const json = require(blacklist);
     delete json[userID];
-    fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
+    fs.writeFileSync(blacklist, JSON.stringify(json, null, 2), 'utf8');
 }
 
 async function addBlacklist (userID) {
-    const json = require(dataFile);
+    const json = require(blacklist);
     json[userID] = 'blacklisted';
-    fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
+    fs.writeFileSync(blacklist, JSON.stringify(json, null, 2), 'utf8');
 }
 
 async function getJSON (file) {
@@ -177,7 +177,7 @@ const saveTickets = (save) => {
 module.exports = {
     archiveChannel,
     tickets,
-    dataFile,
+    blacklist,
     logger,
     channelFile,
     ticketNumber,
