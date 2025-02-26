@@ -36,11 +36,6 @@ Enter the new directory:
 ```
 cd tickets
 ```
-Install dependencies:
-```
-npm i
-npm run register
-```
 Copy the following into a file and name it `.env`:
 ```
 # From Discord Developer Page of your bot
@@ -75,7 +70,11 @@ STATUS = 'for tickets' # "Watching for ____"
 PORT = 3000 # set to 0 if you want to disable the dashboard
 SECRET = 'openssl rand -hex 32' # run to generate secret
 ```
-
+Install dependencies:
+```
+npm i
+npm run register
+```
 The bot is now ready to run:
 ```
 npm start
