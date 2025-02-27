@@ -173,6 +173,7 @@ client.login(process.env.TOKEN);
 app.use(favicon(path.join(__dirname, 'public', 'assets/favicon.ico')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const router = express.Router();
 
 app.use(session({
     secret: process.env.SECRET,
@@ -240,7 +241,7 @@ app.get('/api/info/bot', rootLimiter, (req, res) => {
 // </info>
 // <tickets>
 
-app.get('/api/tickets', requireAuth, rootLimiter, (req, res) => {
+app.get('/api/tickets', rootLimiter, (req, res) => {
     fs.readFile(channelFile, 'utf8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Failed to read ticket data' });
@@ -327,6 +328,19 @@ app.post('/api/blacklist/add', rootLimiter, requireAuth, async (req, res) => {
 
 // app.get('/api/tickets', requireAuth, (req, res) => {
 //     res.json(tickets);
+// });
+
+// router.get('/', rootLimiter, (req, res) => {
+//   res.json(tickets);
+// });
+
+// router.post('/', rootLimiter, (req, res) => {
+//   const { title, description } = req.body;
+//   const newTicket = { id: Date.now(), title, description, user: req.session.user };
+//   tickets.push(newTicket);
+//   fs.writeFileSync(ticketsFile, JSON.stringify(tickets, null, 2));
+
+//   res.json(newTicket);
 // });
 
 if (port != 0) { // disable web if port is zero
