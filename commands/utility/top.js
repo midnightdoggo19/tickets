@@ -10,8 +10,13 @@ module.exports = {
 	
 	async execute(interaction) {
 		await interaction.deferReply()
+		let first;
 		const existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
-        const first = await JSON.stringify(existingChannels[interaction.channel.id]['embed']);
-        await interaction.editReply(`[Jump to top](https://discord.com/channels/${interaction.guild.id}/${interaction.channel.parentId}/${first})`);
+		try {
+        	first = await JSON.stringify(existingChannels[interaction.channel.id]['embed']);
+			await interaction.editReply(`[Jump to top](https://discord.com/channels/${interaction.guild.id}/${interaction.channel.parentId}/${first})`);
+		} catch (TypeError) {
+			await interaction.editReply({ content: 'Couldn\'t fetch first message!', flags: 64});
+		}
 	},
 };
