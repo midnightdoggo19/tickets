@@ -93,6 +93,23 @@ async function archiveChannel (channel) {
     return `Ticket archived at <t:${Math.floor(Date.now() / 1000)}:F>`
 }
 
+async function claimTicket (userID, ticketID) {
+    logger.debug(userID);
+    logger.debug(ticketID);
+
+    let existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
+
+    if (!isNaN(existingChannels[ticketID]['claim'])) { return 'Ticket already claimed!'; }
+
+    logger.debug(JSON.stringify(existingChannels))
+    if (!existingChannels[ticketID]) { return 'Not a ticket!' };
+
+    existingChannels[ticketID].claim = userID;
+    saveTickets(existingChannels);
+    logger.info(`<#${ticketID}> claimed by <@${userID}>`);
+    return `<#${ticketID}> claimed by <@${userID}>`;
+}
+
 async function createTicket(guild, user, ticketNumber) {
     const channel = await guild.channels.create({
         name: `ticket-${user.username}-${ticketNumber}`,
@@ -145,10 +162,11 @@ async function createTicket(guild, user, ticketNumber) {
 
     tickets[channel.id] = {
         user: user.id,
-        channel: channel.id,
+        // channel: channel.id,
         status: 'open',
         ticketNumber: ticketNumber,
-        embed: Number(lastMessage.id)
+        embed: Number(lastMessage.id),
+        claim: 'not claimed idk what to put here since i can just check if it\'s a number'
     };
 
     saveTickets(tickets);
@@ -169,8 +187,8 @@ const logger = winston.createLogger({
     ]
 });
 
-const saveTickets = (save) => {
-    logger.info(`Saving ${save}`)
+async function saveTickets (save) {
+    logger.info(`Saving ${await JSON.stringify(save)}`)
     fs.writeFileSync(channelFile, JSON.stringify(save, null, 2));
 };
 
@@ -190,5 +208,6 @@ module.exports = {
     addBlacklist,
     getJSON,
     removeBlacklist,
-    webServerEnabled
+    webServerEnabled,
+    claimTicket
 }
