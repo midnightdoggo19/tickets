@@ -12,7 +12,7 @@ module.exports = {
             .setTitle('Ticket Help')
             .addFields(
                 { name: '/close', value: 'Closes the current ticket' },
-                { name: '/button', value: 'Creates a "Open Ticket" button' },
+                { name: '/button', value: 'Creates an "Open Ticket" button' },
                 { name: '/top', value: 'Lets you go to the top of the ticket' },
                 { name: '/ping', value: 'Checks if the bot is responsive' },
                 { name: '/open', value: 'Opens a ticket' },
