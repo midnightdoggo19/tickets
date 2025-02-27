@@ -9,7 +9,7 @@ module.exports = {
 	.setContexts(0),
 	
 	async execute(interaction) {
-		await interaction.deferReply()
+		await interaction.deferReply({ flags: 64 })
 		let first;
 		const existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
 		try {
