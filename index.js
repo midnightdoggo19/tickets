@@ -319,6 +319,7 @@ app.post('/api/blacklist/add', rootLimiter, requireAuth, async (req, res) => {
 
 app.post('/api/blacklist/add', rootLimiter, requireAuth, async (req, res) => {
     const { id } = req.body;
+    if (isNaN(id)) { res.send('Not a valid ID!'); return; }
     await removeBlacklist(id);
     res.send(`Removed ${id} from blacklist`);
 });
