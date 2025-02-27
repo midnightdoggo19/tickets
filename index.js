@@ -260,6 +260,7 @@ app.get('/api/tickets', rootLimiter, (req, res) => {
 // closing tickets
 app.post('/api/tickets/:id/close', requireAuth, async (req, res) => {
     const ticketId = req.params.id;
+    if (isNaN(ticketId)) { res.status(400).send('Error closing ticket'); return; }
     const apiChannel = await client.channels.fetch(ticketId);
     await archiveChannel(apiChannel);
     res.json({ success: true, message: `Ticket ${ticketId} closed` });
@@ -314,13 +315,7 @@ app.get('/api/blacklist/list', rootLimiter, async (req, res) => {
 
 app.post('/api/blacklist/add', rootLimiter, requireAuth, async (req, res) => {
     const { id } = req.body;
-    await addBlacklist(id);
-    res.send(`Added ${id} to blacklist`);
-});
-
-app.post('/api/blacklist/add', rootLimiter, requireAuth, async (req, res) => {
-    const { id } = req.body;
-    if (isNaN(id)) { res.send('Not a valid ID!'); return; }
+    if (isNaN(id)) { res.status(400).send('Error saving user'); return; }
     await removeBlacklist(id);
     res.send(`Removed ${id} from blacklist`);
 });
