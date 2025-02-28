@@ -24,6 +24,7 @@ npm test - Makes sure package*.json is valid
 npm run clear - Removes all archived tickets
 npm run register - Registers slash commands with Discord
 npm run validate - Validates .env
+npm run setup - Setup directories (not required to run bot)
 ```
 
 # Installation

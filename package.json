@@ -5,7 +5,8 @@
     "start": "node index.js",
     "clear": "node scrips/clearcategory.js",
     "register": "node scripts/deploy.js",
-    "validate": "node scripts/validate.js"
+    "validate": "node scripts/validate.js",
+    "setup": "mkdir logs && touch .env && npm i"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
