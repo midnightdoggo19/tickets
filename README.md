@@ -86,5 +86,6 @@ npm start
 ## Required Permissions:
 ![Permissions](https://github.com/user-attachments/assets/8581133a-c545-4a00-8ee3-1718cafd7b0a)
 
-# TODO
+# Links
 [TODO](https://midnightdoggo19.com/tickets/TODO.md)
+[Legal](https://midnightdoggo19.com/legal/)
