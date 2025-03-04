@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { getTotalTickets, webServerEnabled } = require('../../functions');
+const { getTotalTickets, webServerEnabled, getLatestCommit } = require('../../functions');
 require('dotenv').config();
 let serverStatus;
 
@@ -29,6 +29,7 @@ module.exports = {
                 { name: 'Support Role', value: `<@&${process.env.SUPPORTROLE}>`},
                 { name: 'Total Tickets', value: total || 'Unknown'},
                 { name: 'Webserver Status', value: serverStatus},
+                { name: 'Latest commit information', value:  await getLatestCommit() }
             )
             .setTimestamp();
 

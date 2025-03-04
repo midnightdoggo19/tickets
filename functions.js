@@ -56,6 +56,22 @@ async function webServerEnabled () {
     if (process.env.PORT == 0 || !process.env.PORT) { return false; } else { return true; }
 }
 
+async function getLatestCommit () {
+    const response = await fetch('https://api.github.com/repos/midnightdoggo19/tickets/commits/master');
+    const data = await response.json();
+  
+    if (response.ok) {
+        let commit = [];
+
+        commit.push(data.sha.substring(0, 6));
+        commit.push(data.commit.message);
+        return commit.join('\n')
+    } else {
+        logger.error('Error:', data.message);
+        return;
+    }
+}
+
 async function archiveChannel (channel) {
     if (!process.env.ARCHIVECATEGORY) {
         logger.warn('Archive category is not set in .env!');
@@ -209,5 +225,6 @@ module.exports = {
     getJSON,
     removeBlacklist,
     webServerEnabled,
-    claimTicket
+    claimTicket,
+    getLatestCommit
 }
