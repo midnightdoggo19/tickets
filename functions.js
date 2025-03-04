@@ -94,14 +94,14 @@ async function archiveChannel (channel) {
 }
 
 async function claimTicket (userID, ticketID) {
-    logger.debug(userID);
-    logger.debug(ticketID);
+    // logger.debug(userID);
+    // logger.debug(ticketID);
 
     let existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
 
     if (!isNaN(existingChannels[ticketID]['claim'])) { return 'Ticket already claimed!'; }
 
-    logger.debug(JSON.stringify(existingChannels))
+    // logger.debug(JSON.stringify(existingChannels))
     if (!existingChannels[ticketID]) { return 'Not a ticket!' };
 
     existingChannels[ticketID].claim = userID;
