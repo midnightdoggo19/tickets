@@ -3,7 +3,7 @@
   "scripts": {
     "test": "jest",
     "start": "node index.js",
-    "clear": "node scrips/clearcategory.js",
+    "clear": "node scripts/clearcategory.js",
     "register": "node scripts/deploy.js",
     "validate": "node scripts/validate.js",
     "setup": "mkdir logs && touch .env && npm i"
