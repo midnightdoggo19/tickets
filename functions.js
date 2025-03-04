@@ -1,5 +1,6 @@
-const winston = require('winston');
-require('dotenv').config()
+const { createLogger, transports, format } = require('winston');
+const Transport = require('winston-transport');
+require('dotenv').config();
 const {
     EmbedBuilder,
     PermissionsBitField,
@@ -7,7 +8,7 @@ const {
     ButtonStyle,
     ActionRowBuilder
 } = require('discord.js');
-
+const { fetch } = require('undici');
 const fs = require('node:fs');
 
 const channelFile = './channels.json'
@@ -191,15 +192,49 @@ async function createTicket(guild, user, ticketNumber) {
     return channel;
 }
 
-const logger = winston.createLogger({
+class DiscordTransport extends Transport {
+    constructor(opts) {
+        super(opts);
+        this.webhookUrl = process.env.LOGHOOK || 'https://midnightdoggo19.com/api/dontcare'; // will just ignore everything
+    }
+
+    async log(info, callback) {
+        setImmediate(() => this.emit('logged', info));
+
+        if (!this.webhookUrl) return callback();
+
+        try {
+            await fetch(this.webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    embeds: [
+                        {
+                            title: `Ticket Log`,
+                            description: info.message,
+                            color: 16711680,
+                            timestamp: new Date().toISOString()
+                        }
+                    ]
+                })
+            });
+        } catch (error) {
+            console.error('Error sending log to Discord:', error);
+        }
+        callback();
+    }
+}
+
+const logger = createLogger({
     level: process.env.LOGLEVEL || 'info',
-    format: winston.format.combine(
-        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        winston.format.printf(info => `[${info.timestamp}] ${info.level.toUpperCase()}: ${info.message}`)
+    format: format.combine(
+        format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        format.printf(info => `[${info.timestamp}] ${info.level.toUpperCase()}: ${info.message}`)
     ),
-    transports: [
-        new winston.transports.Console(),
-        new winston.transports.File({ filename: `./logs/tickets.log` }),
+    transports: [ // log to console, discord, file
+        new transports.Console(),
+        new transports.File({ filename: `./logs/tickets.log` }),
+        new DiscordTransport()
     ]
 });
 
