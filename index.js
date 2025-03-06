@@ -210,6 +210,11 @@ app.use((req, res, next) => {
 app.use(express.static('public'));
 app.set('trust proxy', 1);
 
+app.use((req, res, next) => { // tells crawlers not to index any of this
+    res.setHeader('X-Robots-Tag', 'noindex');
+    next();
+});
+
 // html syntax because why not
 // <info>
 
