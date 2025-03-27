@@ -69,7 +69,7 @@ EMOJI_VC = '🎙️' # on VC button
 OPENTICKETTITLE = 'Ticket Created' # embed title
 OPENTICKETBODY = 'A member of the support team will be with you soon.' # embed body
 NOPERMISSION = 'You don\'t have permission to do that!' # When there's no permission
-STATUS = 'for tickets' # "Watching for ____"
+STATUS = 'for tickets' # "Watching ____"
 
 # Web
 PORT = 3000 # set to 0 if you want to disable the dashboard

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { archiveChannel } = require('../../functions');
+const { archiveChannel, logger } = require('../../functions');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -7,9 +7,10 @@ module.exports = {
 		.setDescription('Close a ticket')
 	.setContexts(0),
 	
-	async execute(interaction) {
-		await interaction.deferReply({flags: 64})
-		const a = await archiveChannel(interaction.channel.id);
+	async execute (interaction) {
+		await interaction.deferReply({flags: 64});
+		logger.debug('attempting to close ticket via command');
+		const a = await archiveChannel(interaction.channel);
         return interaction.editReply({ content: a, flags: 64 });
 	},
 };
