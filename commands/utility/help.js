@@ -24,6 +24,10 @@ module.exports = {
                 { name: '/blacklist-remove', value: 'Remove a user from the blacklist' },
                 { name: '/blacklist-list', value: 'List blacklisted users' },
                 { name: '/register', value: 'Registers a new account on the dashboard'},
+                { name: '/addnote', value: 'Adds a note for a user'},
+                { name: '/editnote', value: 'Edits an existing note'},
+                { name: '/viewnote', value: 'Shows the note for a user'},
+                { name: '/removenote', value: 'Removes the note for a user'},
             )
             .setColor('135f91');
 

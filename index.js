@@ -10,7 +10,7 @@ const {
 } = require('discord.js');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const { logger, tickets, channelFile, createTicket, archiveChannel, blacklist, usersFile, getJSON, addBlacklist, removeBlacklist } = require('./functions');
+const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile, usersFile, getJSON, addBlacklist, notesFile } = require('./functions');
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
@@ -39,14 +39,17 @@ const commandFolders = fs.readdirSync(foldersPath);
 let users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile)) : {};
 
 // create files if they don't exist
-if (!fs.existsSync(blacklist)) {
-    fs.writeFileSync(blacklist, JSON.stringify({}, null, 2), 'utf8');
+if (!fs.existsSync(dataFile)) {
+    fs.writeFileSync(dataFile, JSON.stringify({}, null, 2), 'utf8');
 }
 if (!fs.existsSync(channelFile)) {
     fs.writeFileSync(channelFile, JSON.stringify({}, null, 2), 'utf8');
 }
-if (!fs.existsSync('./logs/server.log')) {
-    fs.writeFileSync('./logs/server.log', '', 'utf8');
+if (!fs.existsSync(notesFile)) {
+    fs.writeFileSync(notesFile, JSON.stringify({}, null, 2), 'utf8');
+}
+if (!fs.existsSync('./tickets.log')) {
+    fs.writeFileSync('./tickets.log', '', 'utf8');
 }
 
 for (const folder of commandFolders) {
@@ -113,7 +116,7 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
-    if (interaction.user.id in JSON.parse(fs.readFileSync(blacklist, 'utf8'))) { return; }
+    if (interaction.user.id in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) { return; }
     if (interaction.guild.id != process.env.GUILDID) { return; }
 
 	const command = interaction.client.commands.get(interaction.commandName);
@@ -314,14 +317,14 @@ app.post('/api/login', rootLimiter, async (req, res) => {
 // </dashboard-auth>
 // <blacklist>
 
-app.get('/api/blacklist/list', rootLimiter, async (req, res) => {
-    res.json(getJSON(blacklist));
-});
+// app.get('/api/blacklist/list', rootLimiter, async (req, res) => {
+//     res.json(getJSON(dataFile));
+// });
 
 app.post('/api/blacklist/add', rootLimiter, requireAuth, async (req, res) => {
     const { id } = req.body;
     if (isNaN(id)) { res.status(400).send('Error saving user'); return; }
-    await removeBlacklist(id);
+    await addBlacklist(id);
     res.send(`Removed ${id} from blacklist`);
 });
 

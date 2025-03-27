@@ -7,7 +7,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('register')
 		.setDescription('Register an account on the dashboard')
-	.setContexts(0),
+	    .setContexts(0),
 
 	async execute(interaction) {
         await interaction.deferReply({ flags: 64 });

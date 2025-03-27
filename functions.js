@@ -12,8 +12,9 @@ const { fetch } = require('undici');
 const fs = require('node:fs');
 
 const channelFile = './channels.json'
-const blacklist = './blacklist.json';
+const dataFile = './data.json';
 const usersFile = './users.json';
+const notesFile = './notes.json';
 
 const noPermission = process.env.NOPERMISSION || 'You don\'t have permission to do that!';
 
@@ -31,19 +32,18 @@ function isJSON(str) { // maybe useful someday
 }
 
 async function removeBlacklist (userID) {
-    const json = require(blacklist);
+    const json = require(dataFile);
     delete json[userID];
-    fs.writeFileSync(blacklist, JSON.stringify(json, null, 2), 'utf8');
+    fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
 }
 
 async function addBlacklist (userID) {
-    const json = require(blacklist);
-    json[userID] = 'blacklisted';
-    fs.writeFileSync(blacklist, JSON.stringify(json, null, 2), 'utf8');
+    const json = require(dataFile);
+    json[userID]['blacklisted'] = true;
+    fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
 }
 
 async function getJSON (file) {
-    // logger.debug('Getting blacklist...');
     const data = await JSON.parse(fs.readFileSync(file, 'utf8'));
     return Object.keys(data).join('\n');
 }
@@ -233,7 +233,7 @@ const logger = createLogger({
     ),
     transports: [ // log to console, discord, file
         new transports.Console(),
-        new transports.File({ filename: `./logs/tickets.log` }),
+        new transports.File({ filename: `./tickets.log` }),
         new DiscordTransport()
     ]
 });
@@ -243,10 +243,41 @@ async function saveTickets (save) {
     fs.writeFileSync(channelFile, JSON.stringify(save, null, 2));
 };
 
+async function removeNote (userID) {
+    const json = require(notesFile);
+    if (!json[userID]) return 'No note set for user!';
+    delete json[userID];
+    fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
+}
+
+async function addNote (userID, note) {
+    logger.debug('adding note');
+    const json = require(notesFile);
+    // if ( !json[userID] ){ json[userID] = ''; logger.debug('here') }
+    json[userID] = note;
+    fs.writeFileSync(notesFile, JSON.stringify(json, null, 2), 'utf8');
+    return note;
+}
+
+async function editNote (userID, note) {
+    // logger.debug('editing note');
+    const json = require(notesFile);
+    if (!json[userID]) return 'No note set for user!';
+    json[userID] = note;
+    fs.writeFileSync(notesFile, JSON.stringify(json, null, 2), 'utf8');
+    return note;
+}
+
+async function viewNote (userID) {
+    const json = require(notesFile);
+    if (!json[userID]) return 'No note set for user!';
+    return json[userID];
+}
+
 module.exports = {
     archiveChannel,
     tickets,
-    blacklist,
+    dataFile,
     logger,
     channelFile,
     ticketNumber,
@@ -261,5 +292,10 @@ module.exports = {
     removeBlacklist,
     webServerEnabled,
     claimTicket,
-    getLatestCommit
+    getLatestCommit,
+    addNote,
+    removeNote,
+    notesFile,
+    editNote,
+    viewNote
 }

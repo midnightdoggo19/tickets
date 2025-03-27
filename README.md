@@ -16,6 +16,10 @@ There's a web dashboard! NOTE: This is in beta and does not yet have authenticat
 /blacklist-remove - Removes a user from the blacklist
 /blacklist-list - Lists blacklisted users
 /register - Creates a new dashboard account
+/addnote - Adds a note for a user
+/editnote - Edits an existing note
+/viewnote - Shows the note for a user
+/removenote - Removes a note for a user
 ```
 ## NPM
 ```
