@@ -78,14 +78,20 @@ async function archiveChannel (channel) {
         logger.warn('Archive category is not set in .env!');
         return 'Archive category is not set!';
     }
-
-    let existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
+    let status;
+    let existingChannels;
+    try {
+        existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
+        status = await JSON.stringify(existingChannels[channel.id]['embed']);
+    } catch (e) {
+        logger.error(e);
+        return;
+    }
 
     // logger.debug(JSON.stringify(existingChannels));
-    // logger.debug(JSON.stringify(channel));
-    if (existingChannels[channel.id]['status'] === 'archived') { return 'Channel already archived!'; };
+    if (status === 'archived') { return 'Channel already archived!'; };
 
-    logger.debug(JSON.stringify(existingChannels))
+    logger.debug(await JSON.stringify(existingChannels));
     if (!existingChannels[channel.id]) { return 'Not a ticket!' };
 
     await channel.setParent(process.env.ARCHIVECATEGORY);
