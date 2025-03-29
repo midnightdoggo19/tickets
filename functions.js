@@ -35,12 +35,14 @@ async function removeBlacklist (userID) {
     const json = require(dataFile);
     delete json[userID];
     fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
+    logger.info(`Removed ${userID} from blacklist`);
 }
 
 async function addBlacklist (userID) {
     const json = require(dataFile);
     json[userID]['blacklisted'] = true;
     fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
+    logger.info(`Added ${userID} to blacklist`);
 }
 
 async function getJSON (file) {
@@ -68,7 +70,7 @@ async function getLatestCommit () {
         commit.push(data.commit.message);
         return commit.join('\n')
     } else {
-        logger.error('Error:', data.message);
+        logger.error('Error getting latest commit: ', data.message);
         return;
     }
 }
@@ -174,7 +176,7 @@ async function createTicket(guild, user, ticketNumber) {
         .setLabel('Create VC')
         .setStyle(ButtonStyle.Secondary)
         .setEmoji(process.env.EMOJI_VC || '🎙️');
-
+        logger.info(`Added ${userID} to blacklist`);
     const row = new ActionRowBuilder()
         .addComponents(closeButton, makeVCButton);
 
@@ -257,16 +259,15 @@ async function removeNote (userID) {
 }
 
 async function addNote (userID, note) {
-    logger.debug('adding note');
+    logger.debug(`Adding note to ${userID}: ${note}`);
     const json = require(notesFile);
-    // if ( !json[userID] ){ json[userID] = ''; logger.debug('here') }
     json[userID] = note;
     fs.writeFileSync(notesFile, JSON.stringify(json, null, 2), 'utf8');
     return note;
 }
 
 async function editNote (userID, note) {
-    // logger.debug('editing note');
+    logger.debug(`Editing note for ${userID}: ${note}`);
     const json = require(notesFile);
     if (!json[userID]) return 'No note set for user!';
     json[userID] = note;
