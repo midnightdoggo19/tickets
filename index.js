@@ -71,7 +71,7 @@ for (const folder of commandFolders) {
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
     await interaction.deferReply()
-    if (interaction.user.id in JSON.parse(fs.readFileSync(blacklist, 'utf8'))) { interaction.deleteReply(); return; }
+    if (interaction.user.id in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) { interaction.deleteReply(); return; }
     const guild = interaction.guild;
     const user = interaction.user;
     let userTickets = Object.values(tickets).filter(t => t.user === user.id);
