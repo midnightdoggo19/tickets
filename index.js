@@ -18,6 +18,7 @@ const favicon = require('serve-favicon');
 const app = express();
 const session = require('express-session');
 const bcrypt = require('bcrypt');
+const requestIp = require('request-ip');
 
 const client = new Client({
     intents: [
@@ -77,7 +78,7 @@ client.on('interactionCreate', async (interaction) => {
     let ticketNumber = userTickets.length;
 
     if (interaction.customId === 'create_ticket') {
-        const channel = await createTicket(guild, user, ticketNumber);
+        const channel = await createTicket(user, ticketNumber);
 	await interaction.deleteReply();
         // await interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
     } else if (interaction.customId === 'close_ticket') {
@@ -176,6 +177,7 @@ app.use(favicon(path.join(__dirname, 'public', 'assets/favicon.ico')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const router = express.Router();
+app.use(requestIp.mw());
 
 app.use(session({
     secret: process.env.SECRET,
@@ -205,19 +207,22 @@ function requireAuth(req, res, next) {
 }
 
 app.use((req, res, next) => {
-    logger.info(`Request: ${req.method} ${req.url}`);
+    logger.info(`Request from ${req.clientIp}: ${req.method} ${req.url}`);
     next();
 });
 
 app.use(express.static('public'));
 app.set('trust proxy', 1);
 
-app.use((req, res, next) => { // tells crawlers not to index any of this
+app.use((req, res, next) => { // tells crawlers not to index any of this (if they'd listen)
     res.setHeader('X-Robots-Tag', 'noindex');
     next();
 });
 
-// html syntax because why not
+app.get('/', rootLimiter, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // <info>
 
 app.get('/api/info/health', rootLimiter, (req, res) => {
@@ -271,10 +276,6 @@ app.post('/api/tickets/:id/close', requireAuth, async (req, res) => {
     const apiChannel = await client.channels.fetch(ticketId);
     await archiveChannel(apiChannel);
     res.json({ success: true, message: `Ticket ${ticketId} closed` });
-});
-
-app.get('/', rootLimiter, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // </tickets>
@@ -335,6 +336,6 @@ app.post('/api/blacklist/add', rootLimiter, requireAuth, async (req, res) => {
 
 if (port != 0) { // disable web if port is zero
     app.listen(port, process.env.IP || 'localhost', () => {
-        logger.info(`Dashboard running at http://${process.env.IP || 'localhost'}:${port}`);
+        logger.info(`Dashboard running at http://${process.env.IP}:${port}`);
     });
 }

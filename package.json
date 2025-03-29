@@ -16,6 +16,7 @@
     "express-rate-limit": "^7.5.0",
     "express-session": "^1.18.1",
     "generate-password": "^1.7.1",
+    "request-ip": "^3.3.0",
     "serve-favicon": "^2.5.0",
     "winston": "^3.17.0"
   },
