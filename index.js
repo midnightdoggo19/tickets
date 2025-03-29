@@ -10,7 +10,7 @@ const {
 } = require('discord.js');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile, usersFile, getJSON, addBlacklist, notesFile } = require('./functions');
+const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile, usersFile, getJSON, addBlacklist, notesFile, register } = require('./functions');
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
@@ -36,7 +36,6 @@ client.commands = new Collection();
 const port = process.env.PORT || 3000;
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
-let users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile)) : {};
 
 // create files if they don't exist
 if (!fs.existsSync(dataFile)) {
@@ -284,26 +283,13 @@ app.get('/', rootLimiter, (req, res) => {
 // registration
 app.post('/api/register', registerLimiter, async (req, res) => {
     const { username, password } = req.body;
-    if (users[username]) return res.status(400).send('User already exists');
-  
-    const hashedPassword = await bcrypt.hash(password, 10);
-    users[username] = { password: hashedPassword };
-  
-    logger.info('Users before saving:', users);
-  
-    try {
-        await fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-        logger.info('Users saved successfully.');
-        res.send('User registered successfully');
-    } catch (err) {
-        console.error('Error saving users:', err);
-        res.status(500).send('Error saving user');
-    }
+    res.send(await register(username, password));
 });
 
 // login
 app.post('/api/login', rootLimiter, async (req, res) => {
     const { username, password } = req.body;
+    const users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile)) : {};
     const user = users[username];
 
     if (!user || !(await bcrypt.compare(password, user.password))) {

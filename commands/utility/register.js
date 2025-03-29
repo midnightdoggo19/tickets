@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const generator = require('generate-password');
-const { logger, noPermission } = require('../../functions');
+const { logger, noPermission, register } = require('../../functions');
 require('dotenv').config();
 
 module.exports = {
@@ -20,37 +20,28 @@ module.exports = {
             await interaction.editReply({content: noPermission, flags: 64})
         };
 
-        const username = interaction.user.username;
-        const password = await generator.generate({
-            length: 8,
-            numbers: true
-        });
+        try {
+            const username = interaction.user.username;
+            const password = await generator.generate({
+                length: 8,
+                numbers: true
+            });
 
-        const embed = new EmbedBuilder()
-        .setTitle('New User')
-        .addFields(
-            { name: 'Username', value: username },
-            { name: 'Password', value: password },
-        )
-        .setTimestamp();
-    
-        const res = await fetch(`http://${process.env.IP}:${process.env.PORT}/api/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username,
-                password
-            })
-        });
-    
-        logger.debug(`${username} registered an account via a command`);
+            const embed = new EmbedBuilder()
+            .setTitle('New User')
+            .addFields(
+                { name: 'Username', value: username },
+                { name: 'Password', value: password },
+            )
+            .setTimestamp();
 
-        if (res.ok) {
+            await register(username, password);
             await interaction.editReply({ embeds: [embed], flags: 64 });
-        } else {
+
+            logger.debug(`${username} registered an account via a command`);
+        } catch (e) {
             await interaction.editReply({ content: 'An error occured, please try again in a moment.', flags: 64 });
+            logger.error(`Error registering: ${e}`);
         }
 	},
 };

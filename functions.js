@@ -10,6 +10,7 @@ const {
 } = require('discord.js');
 const { fetch } = require('undici');
 const fs = require('node:fs');
+const bcrypt = require('bcrypt');
 
 const channelFile = './channels.json'
 const dataFile = './data.json';
@@ -281,6 +282,25 @@ async function viewNote (userID) {
     return json[userID];
 }
 
+async function register (username, password) {
+    const users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile)) : {};
+    if (users[username]) return 'User already exists';
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    users[username] = { password: hashedPassword };
+    
+    logger.info('Users before saving:', users);
+    
+    try {
+        await fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+        logger.info('Users saved successfully.');
+        return 'User registered successfully';
+    } catch (err) {
+        logger.error('Error saving users:', err);
+        return 'Error saving user';
+    }
+}
+
 module.exports = {
     archiveChannel,
     tickets,
@@ -304,5 +324,6 @@ module.exports = {
     removeNote,
     notesFile,
     editNote,
-    viewNote
+    viewNote,
+    register
 }
