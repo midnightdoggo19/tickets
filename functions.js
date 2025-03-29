@@ -21,7 +21,6 @@ const noPermission = process.env.NOPERMISSION || 'You don\'t have permission to 
 
 // let tickets = fs.existsSync(channelFile) ? JSON.parse(fs.readFileSync(channelFile)) : [];
 let tickets = {};
-let ticketNumber = 0 // default
 
 function isJSON(str) { // maybe useful someday
     try {
@@ -86,10 +85,7 @@ async function archiveChannel (channel) {
     try {
         existingChannels = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
         status = await JSON.stringify(existingChannels[channel.id]['embed']);
-    } catch (e) {
-        logger.error(e);
-        return;
-    }
+    } catch (e) { logger.error(e); return; }
 
     // logger.debug(JSON.stringify(existingChannels));
     if (status === 'archived') { return 'Channel already archived!'; };
@@ -119,6 +115,13 @@ async function archiveChannel (channel) {
     return `Ticket archived at <t:${Math.floor(Date.now() / 1000)}:F>`
 }
 
+async function getTicketNumber (userID) {
+    if (userID in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) return;
+    let userTickets = Object.values(tickets).filter(t => t.user === userID);
+    logger.debug(JSON.stringify(userTickets.length));
+    return JSON.stringify(userTickets.length);
+}
+
 async function claimTicket (userID, ticketID) {
     // logger.debug(userID);
     // logger.debug(ticketID);
@@ -136,7 +139,8 @@ async function claimTicket (userID, ticketID) {
     return `<#${ticketID}> claimed by <@${userID}>`;
 }
 
-async function createTicket(guild, user, ticketNumber) {
+async function createTicket(guild, user) {
+    const ticketNumber = await getTicketNumber(user.id);
     const channel = await guild.channels.create({
         name: `ticket-${user.username}-${ticketNumber}`,
         type: 0, // text channel
@@ -177,7 +181,7 @@ async function createTicket(guild, user, ticketNumber) {
         .setLabel('Create VC')
         .setStyle(ButtonStyle.Secondary)
         .setEmoji(process.env.EMOJI_VC || '🎙️');
-        logger.info(`Added ${userID} to blacklist`);
+        logger.info(`Added ${user.id} to blacklist`);
     const row = new ActionRowBuilder()
         .addComponents(closeButton, makeVCButton);
 
@@ -307,7 +311,6 @@ module.exports = {
     dataFile,
     logger,
     channelFile,
-    ticketNumber,
     tickets,
     createTicket,
     noPermission,
@@ -325,5 +328,6 @@ module.exports = {
     notesFile,
     editNote,
     viewNote,
-    register
+    register,
+    getTicketNumber
 }

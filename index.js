@@ -10,7 +10,18 @@ const {
 } = require('discord.js');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const { logger, tickets, channelFile, createTicket, archiveChannel, dataFile, usersFile, getJSON, addBlacklist, notesFile, register } = require('./functions');
+const {
+    logger, 
+    channelFile, 
+    createTicket, 
+    archiveChannel, 
+    dataFile, 
+    usersFile, 
+    addBlacklist, 
+    notesFile, 
+    register, 
+    getTicketNumber 
+} = require('./functions');
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
@@ -70,16 +81,14 @@ for (const folder of commandFolders) {
 // button interactions
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
-    await interaction.deferReply()
-    if (interaction.user.id in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) { interaction.deleteReply(); return; }
+    await interaction.deferReply();
     const guild = interaction.guild;
     const user = interaction.user;
-    let userTickets = Object.values(tickets).filter(t => t.user === user.id);
-    let ticketNumber = userTickets.length;
+    await getTicketNumber(interaction.user.id);
 
     if (interaction.customId === 'create_ticket') {
-        const channel = await createTicket(user, ticketNumber);
-	await interaction.deleteReply();
+        await createTicket(guild, user);
+	    await interaction.deleteReply();
         // await interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
     } else if (interaction.customId === 'close_ticket') {
         let a = await archiveChannel(interaction.channel)
@@ -271,11 +280,13 @@ app.get('/api/tickets', rootLimiter, (req, res) => {
 
 // closing tickets
 app.post('/api/tickets/:id/close', requireAuth, async (req, res) => {
-    const ticketId = req.params.id;
-    if (isNaN(ticketId)) { res.status(400).send('Error closing ticket'); return; }
-    const apiChannel = await client.channels.fetch(ticketId);
-    await archiveChannel(apiChannel);
-    res.json({ success: true, message: `Ticket ${ticketId} closed` });
+    logger.debug('e');
+    const ticketID = req.params.id;
+    if (isNaN(ticketID)) { res.status(400).send('Error closing ticket'); return; }
+    const channel = await client.channels.fetch(ticketID);
+    logger.debug(JSON.stringify(channel));
+    await archiveChannel(channel);
+    res.json({ success: true, message: `Ticket ${ticketID} closed` });
 });
 
 // </tickets>

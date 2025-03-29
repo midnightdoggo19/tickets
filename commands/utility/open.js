@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { createTicket, ticketNumber, tickets } = require('../../functions');
+const { createTicket } = require('../../functions');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -10,10 +10,7 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply()
 
-		const userTickets = Object.values(tickets).filter(t => t.user === interaction.user.id);
-        const ticketNumber = userTickets.length;
-
-        const channel = await createTicket(interaction.guild, interaction.user, ticketNumber)
+        const channel = await createTicket(interaction.guild, interaction.user)
         await interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
 	},
 };

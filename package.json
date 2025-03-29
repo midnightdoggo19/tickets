@@ -2,7 +2,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "node index.js",
+    "start": "node --no-warnings=ExperimentalWarning .",
     "clear": "node scripts/clearcategory.js",
     "register": "node scripts/deploy.js",
     "validate": "node scripts/validate.js",
