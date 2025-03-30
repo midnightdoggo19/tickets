@@ -25,7 +25,8 @@ module.exports = {
             PermissionsBitField.Flags.Administrator,
             PermissionsBitField.Flags.ModerateMembers
         ])) {
-            await interaction.editReply({content: noPermission, flags: 64})
+            await interaction.editReply({content: noPermission, flags: 64});
+            return;
         };
         const note = interaction.options.getString('note');
         const user = interaction.options.getUser('user');
