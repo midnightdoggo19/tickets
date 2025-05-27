@@ -10,7 +10,7 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply()
 
-        const channel = await createTicket(interaction.guild, interaction.user)
-        await interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
+        const channel = await createTicket(interaction.user.id);
+        await interaction.editReply({ content: `Ticket created: <#${channel}>`, flags: 64 });
 	},
 };

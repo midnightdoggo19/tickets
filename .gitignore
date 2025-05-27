@@ -1,7 +1,8 @@
-# Default data files
+# data files
 channels.json
 blacklist.json
 users.json
+notes.json
 
 # Logs
 logs
@@ -133,4 +134,3 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-channels.json
