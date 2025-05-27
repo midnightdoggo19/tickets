@@ -8,13 +8,11 @@ const {
     ButtonStyle,
     ActionRowBuilder
 } = require('discord.js');
-const { fetch } = require('undici');
 const fs = require('node:fs');
 const bcrypt = require('bcrypt');
 
 const channelFile = './channels.json'
 const dataFile = './data.json';
-const usersFile = './users.json';
 const notesFile = './notes.json';
 
 const noPermission = process.env.NOPERMISSION || 'You don\'t have permission to do that!';
@@ -32,14 +30,16 @@ function isJSON(str) { // maybe useful someday
 }
 
 async function removeBlacklist (userID) {
-    const json = require(dataFile);
+    const json = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+
     delete json[userID];
     fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
     logger.info(`Removed ${userID} from blacklist`);
 }
 
 async function addBlacklist (userID) {
-    const json = require(dataFile);
+    const json = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+
     json[userID]['blacklisted'] = true;
     fs.writeFileSync(dataFile, JSON.stringify(json, null, 2), 'utf8');
     logger.info(`Added ${userID} to blacklist`);
@@ -55,10 +55,6 @@ async function getTotalTickets () {
     return String(Object.keys(data).length);
 }
 
-async function webServerEnabled () {
-    if (process.env.PORT == 0 || !process.env.PORT) { return false; } else { return true; }
-}
-
 async function getLatestCommit () {
     const response = await fetch('https://api.github.com/repos/midnightdoggo19/tickets/commits/master');
     const data = await response.json();
@@ -70,7 +66,7 @@ async function getLatestCommit () {
         commit.push(data.commit.message);
         return commit.join('\n')
     } else {
-        logger.error('Error getting latest commit: ', data.message);
+        logger.error(`Error getting latest commit: ${data.message}`);
         return;
     }
 }
@@ -115,11 +111,19 @@ async function archiveChannel (channel) {
     return `Ticket archived at <t:${Math.floor(Date.now() / 1000)}:F>`
 }
 
-async function getTicketNumber (userID) {
-    if (userID in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) return;
-    let userTickets = Object.values(tickets).filter(t => t.user === userID);
-    logger.debug(JSON.stringify(userTickets.length));
-    return JSON.stringify(userTickets.length);
+async function getTicketNumber(userID) {
+    const data = fs.existsSync(dataFile)
+        ? JSON.parse(fs.readFileSync(dataFile, 'utf8'))
+        : {};
+
+    if (!data[userID]) data[userID] = {};
+    if (!data[userID].ticketCount) data[userID].ticketCount = 0;
+
+    data[userID].ticketCount += 1;
+
+    fs.writeFileSync(dataFile, JSON.stringify(data, null, 2), 'utf8');
+
+    return data[userID].ticketCount;
 }
 
 async function claimTicket (userID, ticketID) {
@@ -181,7 +185,6 @@ async function createTicket(guild, user) {
         .setLabel('Create VC')
         .setStyle(ButtonStyle.Secondary)
         .setEmoji(process.env.EMOJI_VC || '🎙️');
-        logger.info(`Added ${user.id} to blacklist`);
     const row = new ActionRowBuilder()
         .addComponents(closeButton, makeVCButton);
 
@@ -251,10 +254,30 @@ const logger = createLogger({
     ]
 });
 
-async function saveTickets (save) {
-    logger.info(`Saving ${await JSON.stringify(save)}`)
-    fs.writeFileSync(channelFile, JSON.stringify(save, null, 2));
-};
+function saveTickets(update) {
+    let existing = {};
+
+    try {
+        if (fs.existsSync(channelFile)) {
+            existing = JSON.parse(fs.readFileSync(channelFile, 'utf8'));
+        }
+    } catch (err) {
+        logger.error('Error reading existing tickets:', err);
+        return;
+    }
+
+    const merged = { ...existing, ...update };
+
+    try {
+        fs.writeFileSync(channelFile, JSON.stringify(merged, null, 2), 'utf8');
+        logger.info(`Tickets saved: ${Object.keys(update).join(', ')}`);
+    } catch (err) {
+        logger.error('Error saving tickets:', err);
+        return;
+    }
+
+    Object.assign(tickets, update);
+}
 
 async function removeNote (userID) {
     const json = require(notesFile);
@@ -286,41 +309,19 @@ async function viewNote (userID) {
     return json[userID];
 }
 
-async function register (username, password) {
-    const users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile)) : {};
-    if (users[username]) return 'User already exists';
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    users[username] = { password: hashedPassword };
-    
-    logger.info('Users before saving:', users);
-    
-    try {
-        await fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-        logger.info('Users saved successfully.');
-        return 'User registered successfully';
-    } catch (err) {
-        logger.error('Error saving users:', err);
-        return 'Error saving user';
-    }
-}
-
 module.exports = {
     archiveChannel,
     tickets,
     dataFile,
     logger,
     channelFile,
-    tickets,
     createTicket,
     noPermission,
-    usersFile,
     getTotalTickets,
     isJSON,
     addBlacklist,
     getJSON,
     removeBlacklist,
-    webServerEnabled,
     claimTicket,
     getLatestCommit,
     addNote,
@@ -328,6 +329,5 @@ module.exports = {
     notesFile,
     editNote,
     viewNote,
-    register,
     getTicketNumber
 }

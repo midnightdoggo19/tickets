@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { getTotalTickets, webServerEnabled, getLatestCommit, logger } = require('../../functions');
+const { getTotalTickets, getLatestCommit, logger } = require('../../functions');
 require('dotenv').config();
 
 module.exports = {
@@ -10,10 +10,8 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply({ flags: 64 });
         const total = await getTotalTickets();
-        let serverStatus;
         let webhook;
 
-        if (await webServerEnabled() === true) { serverStatus = 'Online' } else { serverStatus = 'Offline' }
         if (process.env.LOGHOOK) { webhook = true } else { webhook = false }
         logger.debug('here');
 
@@ -26,7 +24,6 @@ module.exports = {
             .addFields(
                 { name: 'Support Role', value: `<@&${process.env.SUPPORTROLE}>`},
                 { name: 'Total Tickets', value: total || 'Unknown'},
-                { name: 'Webserver Status', value: serverStatus},
                 { name: 'Latest commit information', value:  await getLatestCommit() || 'Couldn\'t get latest commit!' },
                 { name: 'Webhook status', value: String(webhook) }
             )
