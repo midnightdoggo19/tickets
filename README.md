@@ -1,6 +1,5 @@
 # Features
-## Web
-There's a web dashboard! NOTE: This is in beta and does not yet have authentication in place! You can disable it by setting the port to zero.
+
 ## Discord
 ```
 /close - Closes the current ticket
@@ -15,7 +14,6 @@ There's a web dashboard! NOTE: This is in beta and does not yet have authenticat
 /about - Provides information about the bot
 /blacklist-remove - Removes a user from the blacklist
 /blacklist-list - Lists blacklisted users
-/register - Creates a new dashboard account
 /addnote - Adds a note for a user
 /editnote - Edits an existing note
 /viewnote - Shows the note for a user
@@ -70,10 +68,6 @@ OPENTICKETTITLE = 'Ticket Created' # embed title
 OPENTICKETBODY = 'A member of the support team will be with you soon.' # embed body
 NOPERMISSION = 'You don\'t have permission to do that!' # When there's no permission
 STATUS = 'for tickets' # "Watching ____"
-
-# Web
-PORT = 3000 # set to 0 if you want to disable the dashboard
-SECRET = 'openssl rand -hex 32' # run to generate secret
 ```
 Install dependencies:
 ```
