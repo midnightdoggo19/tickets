@@ -86,7 +86,7 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.editReply({ content: a, flags: 64 });
 
     } else if (interaction.customId === 'make_vc') {
-        const VC = await guild.channels.create({
+        await guild.channels.create({
             name: `ticket-${user.username}-VC`,
             type: 2,
             parent: process.env.TICKETCATEGORY,
@@ -116,7 +116,7 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
-    logger.debug('command');
+    logger.debug(`got ${interaction.command.name}`);
     // if (interaction.user.id in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) { return; }
     if (interaction.guild.id != process.env.GUILDID) { return; }
 

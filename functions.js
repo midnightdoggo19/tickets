@@ -145,6 +145,7 @@ async function claimTicket (userID, ticketID) {
 
 async function createTicket(guild, user) {
     const ticketNumber = await getTicketNumber(user.id);
+    logger.debug(JSON.stringify(user));
     const channel = await guild.channels.create({
         name: `ticket-${user.username}-${ticketNumber}`,
         type: 0, // text channel
