@@ -3,6 +3,7 @@ channels.json
 blacklist.json
 users.json
 notes.json
+data.json
 
 # Logs
 logs
