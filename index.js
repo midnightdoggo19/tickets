@@ -116,7 +116,7 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
-    logger.debug(`got ${interaction.command.name}`);
+    // logger.debug(`got ${interaction.command.name}`);
     // if (interaction.user.id in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) { return; }
     if (interaction.guild.id != process.env.GUILDID) { return; }
 
