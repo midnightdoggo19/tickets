@@ -11,6 +11,6 @@ module.exports = {
 		await interaction.deferReply()
 		logger.debug('opening command');
         const channel = await createTicket(interaction.guild, interaction.user);
-        await interaction.editReply({ content: `Ticket created: #${channel}`, flags: 64 });
+        await interaction.editReply({ content: `Ticket created: ${channel}`, flags: 64 });
 	},
 };

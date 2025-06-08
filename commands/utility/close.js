@@ -11,6 +11,6 @@ module.exports = {
 		await interaction.deferReply({flags: 64});
 		// logger.debug('attempting to close ticket via command');
 		const a = await archiveChannel(interaction.channel);
-        await interaction.editReply({ content: a, flags: 64 });
+        await interaction.editReply({ content: a });
 	},
 };

@@ -82,12 +82,11 @@ client.on('interactionCreate', async (interaction) => {
 	    await interaction.deleteReply();
         // await interaction.editReply({ content: `Ticket created: <#${channel.id}>`, flags: 64 });
     } else if (interaction.customId === 'close_ticket') {
-        let a = await archiveChannel(interaction.channel)
-        return interaction.editReply({ content: a, flags: 64 });
-
+        const a = await archiveChannel(interaction.channel)
+        return interaction.editReply({ content: a });
     } else if (interaction.customId === 'make_vc') {
         await guild.channels.create({
-            name: `ticket-${user.username}-VC`,
+            name: `${user.username}'s VC`,
             type: 2,
             parent: process.env.TICKETCATEGORY,
             permissionOverwrites: [
@@ -116,14 +115,14 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
-    // logger.debug(`got ${interaction.command.name}`);
+    logger.debug(`Received ${interaction.commandName} from ${interaction.user.username}`);
     // if (interaction.user.id in JSON.parse(fs.readFileSync(dataFile, 'utf8'))) { return; }
     if (interaction.guild.id != process.env.GUILDID) { return; }
 
 	const command = interaction.client.commands.get(interaction.commandName);
 
 	if (!command) {
-		logger.error(`No command matching ${interaction.commandName} was found.`);
+		logger.error(`No commands matching ${interaction.commandName} were found.`);
 		return;
 	}
 
